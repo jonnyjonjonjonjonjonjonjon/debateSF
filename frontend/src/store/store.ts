@@ -48,7 +48,9 @@ interface DebateState {
   setHistoryOpen: (open: boolean) => void;
 }
 
-const API_BASE = '/api';
+const API_BASE = process.env.NODE_ENV === 'production' 
+  ? 'https://debatesf-production.up.railway.app/api'
+  : '/api';
 
 export const useDebateStore = create<DebateState>((set, get) => ({
   debate: null,
