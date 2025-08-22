@@ -8,6 +8,7 @@ const PORT = process.env.PORT || 3001;
 app.use(cors({
   origin: [
     'https://debate-jr2ns9q59-jon-hughes-projects-24330bac.vercel.app',
+    'https://debate-sf3-ajti3sbp9-jon-hughes-projects-24330bac.vercel.app',
     'http://localhost:5173'
   ]
 }));
