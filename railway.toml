@@ -2,8 +2,7 @@
 builder = "nixpacks"
 
 [deploy]
-startCommand = "cd backend && npm run build && npm start"
+startCommand = "npm run build && npm start"
 
-[[services]]
-name = "debate-mapper-backend"
-source = "."
+[build.env]
+NODE_ENV = "production"
