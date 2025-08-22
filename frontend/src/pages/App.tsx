@@ -23,7 +23,21 @@ export default function App() {
   }
 
   if (error) {
-    return <div className="p-4 text-red-600">Error: {error}</div>;
+    return (
+      <div className="p-4 text-center">
+        <div className="text-red-600 mb-4">⚠️ {error}</div>
+        <button
+          onClick={loadDebate}
+          className="px-4 py-2 text-sm font-medium sharp-corners"
+          style={{
+            backgroundColor: '#111111',
+            color: '#FFFFFF'
+          }}
+        >
+          Try Again
+        </button>
+      </div>
+    );
   }
 
   if (!debate) {

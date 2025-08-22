@@ -66,11 +66,17 @@ export const useDebateStore = create<DebateState>((set, get) => ({
     set({ loading: true, error: null });
     try {
       const response = await fetch(`${API_BASE}/debate`);
-      if (!response.ok) throw new Error('Failed to load debate');
+      if (!response.ok) {
+        throw new Error(`Failed to load debate (${response.status})`);
+      }
       const debate = await response.json();
       set({ debate, loading: false });
     } catch (error) {
-      set({ error: (error as Error).message, loading: false });
+      console.error('Error loading debate:', error);
+      set({ 
+        error: error instanceof Error ? error.message : 'Failed to load debate', 
+        loading: false 
+      });
     }
   },
 
