@@ -48,7 +48,7 @@ interface DebateState {
   setHistoryOpen: (open: boolean) => void;
 }
 
-const API_BASE = process.env.NODE_ENV === 'production' 
+const API_BASE = import.meta.env.PROD 
   ? 'https://debatesf-production.up.railway.app/api'
   : '/api';
 
