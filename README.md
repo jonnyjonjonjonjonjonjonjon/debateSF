@@ -2,6 +2,8 @@
 
 A React-based debate mapping tool with nested per-parent layout and clean design system integration.
 
+🚀 **Live Demo:** [https://debate-sf3-ajti3sbp9-jon-hughes-projects-24330bac.vercel.app](https://debate-sf3-ajti3sbp9-jon-hughes-projects-24330bac.vercel.app)
+
 ## Features
 
 - **Nested Per-Parent Rows**: Children render within parent columns, no global depth grid
@@ -13,7 +15,18 @@ A React-based debate mapping tool with nested per-parent layout and clean design
 - **Design System**: JSON-driven styling with HSL color helpers
 - **Responsive & Accessible**: Supports reduced motion preferences
 
-## Quick Start
+## Deployment
+
+### Production URLs
+- **Frontend (Vercel):** https://debate-sf3-ajti3sbp9-jon-hughes-projects-24330bac.vercel.app
+- **Backend (Railway):** https://debatesf-production.up.railway.app
+
+### Architecture
+- **Frontend:** React + TypeScript + Vite + Tailwind + Zustand (deployed on Vercel)
+- **Backend:** Node + Express + TypeScript (deployed on Railway)
+- **Auto-deployment:** Both services redeploy automatically from GitHub commits
+
+## Local Development
 
 ### Terminal A - Backend
 ```bash
@@ -30,6 +43,20 @@ npm run dev
 ```
 
 Open http://localhost:5173 (proxies /api → http://localhost:3001)
+
+## Environment Variables
+
+### Backend (Railway)
+```bash
+PORT=3001
+NODE_ENV=production  
+ALLOWED_ORIGINS=https://your-frontend-domain.vercel.app,http://localhost:5173
+```
+
+### Frontend (Vercel)
+```bash  
+VITE_API_URL=https://your-backend.up.railway.app/api
+```
 
 ## Architecture
 
