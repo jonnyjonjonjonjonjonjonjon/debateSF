@@ -6,9 +6,10 @@ const app = express();
 const PORT = process.env.PORT || 3001;
 
 app.use(cors({
-  origin: process.env.NODE_ENV === 'production' 
-    ? ['https://debate-jr2ns9q59-jon-hughes-projects-24330bac.vercel.app'] 
-    : ['http://localhost:5173']
+  origin: [
+    'https://debate-jr2ns9q59-jon-hughes-projects-24330bac.vercel.app',
+    'http://localhost:5173'
+  ]
 }));
 app.use(express.json());
 
