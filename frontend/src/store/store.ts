@@ -48,8 +48,10 @@ interface DebateState {
   setHistoryOpen: (open: boolean) => void;
 }
 
-// Force fresh deployment with Railway URL
-const API_BASE = 'https://debatesf-production.up.railway.app/api';
+const API_BASE = import.meta.env.VITE_API_URL || 
+  (import.meta.env.PROD 
+    ? 'https://debatesf-production.up.railway.app/api'
+    : '/api');
 
 export const useDebateStore = create<DebateState>((set, get) => ({
   debate: null,
