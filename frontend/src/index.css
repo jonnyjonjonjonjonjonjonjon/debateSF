@@ -1,0 +1,37 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+* {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  font-family: var(--font-family);
+  color: var(--text-color);
+  background-color: var(--surface-color);
+}
+
+.text-clamp {
+  display: -webkit-box;
+  -webkit-line-clamp: var(--text-clamp-lines);
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+.sharp-corners {
+  border-radius: var(--border-radius);
+}
+
+.no-gap {
+  gap: 0;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  * {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+}

@@ -1,0 +1,156 @@
+{
+  "name": "DebateMapper Design System",
+  "version": "1.0.0",
+  "tokens": {
+    "radii": {
+      "none": 0
+    },
+    "spacing": {
+      "xs": 4,
+      "sm": 8,
+      "md": 16,
+      "lg": 24
+    },
+    "border": {
+      "width": 1,
+      "color": "rgba(0,0,0,0.08)",
+      "radius": 0
+    },
+    "sizes": {
+      "closedCardHeight": 128,
+      "expanderMinHeight": 160,
+      "minCardWidth": 220
+    },
+    "typography": {
+      "fontFamily": "system-ui, -apple-system, 'Segoe UI', Roboto, 'Helvetica Neue', Arial",
+      "labelUppercase": true,
+      "labelSize": 12
+    }
+  },
+  "layout": {
+    "approach": "percent-range",
+    "mapPadding": 0,
+    "rowGap": 0,
+    "textClampLines": 3
+  },
+  "colors": {
+    "text": "#111111",
+    "surface": "#FFFFFF",
+    "neutral": {
+      "50": "#f9fafb",
+      "100": "#f3f4f6"
+    },
+    "danger": "#dc2626",
+    "opening": {
+      "bg": "#e5e7eb",
+      "fg": "#111111",
+      "resolvedBg": "#1F9D55"
+    },
+    "branch": {
+      "baseHues": [
+        14,
+        42,
+        170,
+        210,
+        260,
+        310
+      ],
+      "satStart": 0.6,
+      "litStart": 0.9,
+      "perDepth": {
+        "satStep": -0.05,
+        "litStep": -0.06,
+        "minSat": 0.35,
+        "minLit": 0.35
+      }
+    },
+    "counterVariation": {
+      "applyTo": "counter",
+      "strategy": "hue-near-branch",
+      "goldenAngle": 137.507764,
+      "hueSpread": 30,
+      "sBoostMax": 0.1,
+      "lJitterAmp": 0.06
+    }
+  },
+  "components": {
+    "card": {
+      "padding": 16,
+      "border": "@tokens.border",
+      "cornerRadius": 0,
+      "showsButtons": false,
+      "uniformClosedHeight": "@tokens.sizes.closedCardHeight"
+    },
+    "card:opening": {
+      "clickable": false,
+      "border": "none",
+      "bg": "@colors.opening.bg",
+      "fg": "@colors.opening.fg"
+    },
+    "expander": {
+      "padding": 24,
+      "border": "@tokens.border",
+      "minHeight": "@tokens.sizes.expanderMinHeight",
+      "buttons": [
+        "Agree",
+        "Challenge"
+      ]
+    },
+    "button": {
+      "primary": {
+        "bg": "#111111",
+        "fg": "#FFFFFF"
+      },
+      "secondary": {
+        "bg": "#EFEFEF",
+        "fg": "#111111",
+        "border": "@tokens.border"
+      }
+    }
+  },
+  "dataSchema": {
+    "Node": {
+      "type": [
+        "opening",
+        "objection",
+        "counter"
+      ],
+      "text": "string",
+      "children": "Node[]"
+    }
+  },
+  "algorithms": {
+    "buildRows": {
+      "desc": "Rows are arrays of cells with [start,end] percentages; siblings split parent equally.",
+      "cell": {
+        "fields": [
+          "node",
+          "depth",
+          "start",
+          "end",
+          "topIndex",
+          "sibIdx",
+          "sibCount"
+        ]
+      }
+    },
+    "coloring": {
+      "branch": "hsl(hue, s, l) using baseHues[topIndex], sat/lit attenuated per depth",
+      "counterSiblings": "for counters, offset hue by \u00b1hueSpread using goldenAngle steps; slight s/l variation"
+    }
+  },
+  "interactions": {
+    "cardClick": {
+      "toggleExpander": true,
+      "expanderInsertion": "afterRowOfClickedCard",
+      "closeOnRepeatClick": true
+    },
+    "buttonsShownOnlyInExpander": true
+  },
+  "constraints": {
+    "roundedCorners": false,
+    "gapsBetweenSiblings": false,
+    "equalSiblingWidths": "byPercentSplit",
+    "sameRowHeights": "uniformClosedHeight"
+  }
+}
