@@ -6,8 +6,11 @@ const app = express();
 const PORT = process.env.PORT || 3001;
 
 const allowedOrigins = process.env.ALLOWED_ORIGINS 
-  ? process.env.ALLOWED_ORIGINS.split(',')
+  ? process.env.ALLOWED_ORIGINS.split(',').map(origin => origin.trim())
   : ['http://localhost:5173'];
+
+console.log('Environment ALLOWED_ORIGINS:', process.env.ALLOWED_ORIGINS);
+console.log('Parsed allowed origins:', allowedOrigins);
 
 app.use(cors({
   origin: allowedOrigins,
