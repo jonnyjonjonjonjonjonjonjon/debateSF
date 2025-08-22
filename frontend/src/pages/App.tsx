@@ -1,4 +1,4 @@
-import React, { useEffect } from 'react';
+import { useEffect } from 'react';
 import { useDebateStore } from '../store/store';
 import { Tree } from '../components/Tree';
 import { OpeningCard } from '../components/OpeningCard';

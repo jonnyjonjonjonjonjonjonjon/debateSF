@@ -1,4 +1,3 @@
-import React from 'react';
 import { useDebateStore } from '../store/store';
 
 export function HistoryDrawer() {

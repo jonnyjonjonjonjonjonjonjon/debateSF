@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import { useState } from 'react';
 import { useDebateStore, type DebateBlock } from '../store/store';
 import { getBlockColor } from '../utils/colors';
 

@@ -1,5 +1,4 @@
-import React from 'react';
-import { useDebateStore, type DebateBlock } from '../store/store';
+import { useDebateStore } from '../store/store';
 import { BlockCard } from './BlockCard';
 import { DraftCard } from './DraftCard';
 

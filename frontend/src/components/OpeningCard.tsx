@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import { useState } from 'react';
 import { useDebateStore } from '../store/store';
 import { DraftCard } from './DraftCard';
 
