@@ -48,6 +48,7 @@ interface DebateState {
   setHistoryOpen: (open: boolean) => void;
 }
 
+// Force fresh deployment with Railway URL
 const API_BASE = 'https://debatesf-production.up.railway.app/api';
 
 export const useDebateStore = create<DebateState>((set, get) => ({
