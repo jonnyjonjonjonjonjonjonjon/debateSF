@@ -1,4 +1,3 @@
-import { useState } from 'react';
 import { useDebateStore } from '../store/store';
 
 interface DraftCardProps {
