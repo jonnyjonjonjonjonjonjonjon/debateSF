@@ -5,12 +5,13 @@ import { debateRouter } from './routes/debate.js';
 const app = express();
 const PORT = process.env.PORT || 3001;
 
+const allowedOrigins = process.env.ALLOWED_ORIGINS 
+  ? process.env.ALLOWED_ORIGINS.split(',')
+  : ['http://localhost:5173'];
+
 app.use(cors({
-  origin: [
-    'https://debate-jr2ns9q59-jon-hughes-projects-24330bac.vercel.app',
-    'https://debate-sf3-ajti3sbp9-jon-hughes-projects-24330bac.vercel.app',
-    'http://localhost:5173'
-  ]
+  origin: allowedOrigins,
+  credentials: true
 }));
 app.use(express.json());
 
