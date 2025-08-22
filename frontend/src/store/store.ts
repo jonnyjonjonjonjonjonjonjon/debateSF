@@ -48,10 +48,7 @@ interface DebateState {
   setHistoryOpen: (open: boolean) => void;
 }
 
-const API_BASE = import.meta.env.VITE_API_URL || 
-  (import.meta.env.PROD 
-    ? 'https://debatesf-production.up.railway.app/api'
-    : '/api');
+const API_BASE = 'https://debatesf-production.up.railway.app/api';
 
 export const useDebateStore = create<DebateState>((set, get) => ({
   debate: null,
