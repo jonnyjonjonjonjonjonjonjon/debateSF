@@ -27,9 +27,9 @@ export function Tree({ blockId }: TreeProps) {
       {(children.length > 0 || showDraft) && (
         <div className="w-full">
           <div 
-            className="grid no-gap w-full"
+            className="grid no-gap w-full mobile-grid"
             style={{
-              gridTemplateColumns: `repeat(${children.length + (showDraft ? 1 : 0)}, minmax(var(--min-card-width), 1fr))`
+              gridTemplateColumns: `repeat(${children.length + (showDraft ? 1 : 0)}, minmax(0, 1fr))`
             }}
           >
             {children.map((child) => (
@@ -39,7 +39,7 @@ export function Tree({ blockId }: TreeProps) {
             ))}
             
             {showDraft && (
-              <div className="w-full">
+              <div className="w-full overflow-hidden">
                 <DraftCard />
               </div>
             )}

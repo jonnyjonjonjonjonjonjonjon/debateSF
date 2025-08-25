@@ -35,3 +35,16 @@ body {
     transition-duration: 0.01ms !important;
   }
 }
+
+@media (max-width: 768px) {
+  .mobile-grid {
+    display: flex !important;
+    flex-direction: column !important;
+    width: 100% !important;
+  }
+  
+  .mobile-grid > * {
+    width: 100% !important;
+    max-width: 100% !important;
+  }
+}
