@@ -1,4 +1,4 @@
-DEPLOYMENT TEST - $(date)
-Commit: 838f3ec
-This file proves the latest code is deployed.
-If you can see this at /deployment-test.txt, then Vercel is working.
+🚨 NEW VERCEL PROJECT TEST - 2025-08-25 4:51 AM 🚨
+Commit: 9747232  
+NEW RAILWAY URL: debatesf-production-4206.up.railway.app
+If you can see this timestamp, the NEW Vercel project is deploying properly!
