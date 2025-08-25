@@ -52,8 +52,8 @@ export default function App() {
         <div className="flex justify-between items-center">
           <div className="flex items-center gap-3">
             <h1 className="text-xl font-bold">Debate Mapper 🚀</h1>
-            <span className="text-sm text-white font-mono bg-purple-500 px-2 py-1 rounded font-bold">
-              v1.1.5 - FULL WIDTH EXPANSION!
+            <span className="text-sm text-white font-mono bg-orange-500 px-2 py-1 rounded font-bold">
+              v1.1.6 - CORRECT EXPANSION LAYOUT!
             </span>
           </div>
           <button

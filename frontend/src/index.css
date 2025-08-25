@@ -28,14 +28,8 @@ body {
   gap: 0;
 }
 
-.expanded-block-container {
-  position: relative;
-  width: 100vw;
-  left: 50%;
-  right: 50%;
-  margin-left: -50vw;
-  margin-right: -50vw;
-  z-index: 10;
+.expanded-content {
+  margin-top: 2px;
 }
 
 @media (prefers-reduced-motion: reduce) {

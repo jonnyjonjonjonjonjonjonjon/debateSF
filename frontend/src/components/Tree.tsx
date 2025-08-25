@@ -19,16 +19,15 @@ export function Tree({ blockId }: TreeProps) {
     .sort((a, b) => a.order - b.order);
 
   const showDraft = draft && draft.parentId === blockId;
-  const isExpanded = expandedBlockId === blockId;
+  const hasExpandedChild = children.some(child => expandedBlockId === child.id);
 
   return (
     <div className="w-full">
-      <div className={isExpanded ? "expanded-block-container" : "w-full"}>
-        <BlockCard block={block} />
-      </div>
+      <BlockCard block={block} />
       
       {(children.length > 0 || showDraft) && (
         <div className="w-full">
+          {/* Collapsed blocks row */}
           <div 
             className="grid no-gap w-full mobile-grid"
             style={{
@@ -38,7 +37,11 @@ export function Tree({ blockId }: TreeProps) {
           >
             {children.map((child) => (
               <div key={child.id} className="w-full overflow-hidden">
-                <Tree blockId={child.id} />
+                {expandedBlockId === child.id ? (
+                  <BlockCard block={child} />
+                ) : (
+                  <Tree blockId={child.id} />
+                )}
               </div>
             ))}
             
@@ -48,6 +51,89 @@ export function Tree({ blockId }: TreeProps) {
               </div>
             )}
           </div>
+          
+          {/* Expanded block full-width row */}
+          {hasExpandedChild && (
+            <div className="w-full">
+              {children
+                .filter(child => expandedBlockId === child.id)
+                .map((child) => (
+                  <div key={`expanded-${child.id}`} className="w-full expanded-content">
+                    <div className="w-full p-4 sharp-corners" 
+                         style={{
+                           minHeight: 'var(--expander-min-height)',
+                           backgroundColor: 'var(--opening-bg)',
+                           border: `var(--border-width)px solid var(--border-color)`
+                         }}>
+                      <div className="text-sm uppercase tracking-wide mb-2" 
+                           style={{ fontSize: 'var(--label-size)' }}>
+                        {child.depth === 1 ? 'Objection' : 'Counter'}
+                      </div>
+                      
+                      <div className="mb-4">
+                        {child.text}
+                      </div>
+                      
+                      <div className="flex gap-2">
+                        <button
+                          onClick={() => {
+                            const { agreeToBlock } = useDebateStore.getState();
+                            agreeToBlock(child.id);
+                          }}
+                          className="px-4 py-2 text-sm font-medium sharp-corners"
+                          style={{
+                            backgroundColor: '#111111',
+                            color: '#FFFFFF'
+                          }}
+                        >
+                          Agree
+                        </button>
+                        
+                        <button
+                          onClick={() => {
+                            const { createDraft } = useDebateStore.getState();
+                            createDraft(child.id, '');
+                          }}
+                          className="px-4 py-2 text-sm font-medium sharp-corners"
+                          style={{
+                            backgroundColor: '#EFEFEF',
+                            color: '#111111',
+                            border: `var(--border-width)px solid var(--border-color)`
+                          }}
+                        >
+                          Challenge
+                        </button>
+                        
+                        {child.history.length > 0 && (
+                          <button
+                            onClick={() => {
+                              const { setHistoryOpen } = useDebateStore.getState();
+                              setHistoryOpen(true);
+                            }}
+                            className="px-4 py-2 text-sm font-medium sharp-corners"
+                            style={{
+                              backgroundColor: '#EFEFEF',
+                              color: '#111111',
+                              border: `var(--border-width)px solid var(--border-color)`
+                            }}
+                          >
+                            History
+                          </button>
+                        )}
+                      </div>
+                    </div>
+                    
+                    {/* Render children of expanded block */}
+                    {debate.blocks
+                      .filter(b => b.parentId === child.id)
+                      .sort((a, b) => a.order - b.order)
+                      .map(grandchild => (
+                        <Tree key={grandchild.id} blockId={grandchild.id} />
+                      ))}
+                  </div>
+                ))}
+            </div>
+          )}
         </div>
       )}
     </div>
