@@ -51,9 +51,9 @@ export default function App() {
       <header className="p-4 border-b" style={{ borderColor: 'var(--border-color)' }}>
         <div className="flex justify-between items-center">
           <div className="flex items-center gap-3">
-            <h1 className="text-xl font-bold">Debate Mapper</h1>
-            <span className="text-sm text-gray-500 font-mono bg-yellow-100 px-1 rounded">
-              v1.1.2 ({new Date().toISOString().slice(0,16)})
+            <h1 className="text-xl font-bold">Debate Mapper 🚀</h1>
+            <span className="text-sm text-white font-mono bg-red-500 px-2 py-1 rounded font-bold">
+              VERSION v1.1.2 - DEPLOYED {new Date().toLocaleString()}
             </span>
           </div>
           <button
