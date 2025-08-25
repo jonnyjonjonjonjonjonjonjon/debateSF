@@ -52,7 +52,9 @@ export default function App() {
         <div className="flex justify-between items-center">
           <div className="flex items-center gap-3">
             <h1 className="text-xl font-bold">Debate Mapper</h1>
-            <span className="text-sm text-gray-500 font-mono bg-yellow-100 px-1 rounded">v1.1.2</span>
+            <span className="text-sm text-gray-500 font-mono bg-yellow-100 px-1 rounded">
+              v1.1.2 ({new Date().toISOString().slice(0,16)})
+            </span>
           </div>
           <button
             onClick={resetDebate}
