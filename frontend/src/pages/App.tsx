@@ -50,7 +50,10 @@ export default function App() {
     <div className="min-h-screen">
       <header className="p-4 border-b" style={{ borderColor: 'var(--border-color)' }}>
         <div className="flex justify-between items-center">
-          <h1 className="text-xl font-bold">Debate Mapper</h1>
+          <div className="flex items-center gap-3">
+            <h1 className="text-xl font-bold">Debate Mapper</h1>
+            <span className="text-sm text-gray-500 font-mono">v1.1.0</span>
+          </div>
           <button
             onClick={resetDebate}
             className="px-3 py-1 text-sm font-medium sharp-corners"
