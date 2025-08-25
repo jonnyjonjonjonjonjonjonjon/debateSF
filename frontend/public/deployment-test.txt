@@ -1,0 +1,4 @@
+DEPLOYMENT TEST - $(date)
+Commit: 838f3ec
+This file proves the latest code is deployed.
+If you can see this at /deployment-test.txt, then Vercel is working.
