@@ -1,5 +1,8 @@
 # Version History
 
+## v1.1.1 (2025-08-25)
+- Force deployment to ensure version display works on production
+
 ## v1.1.0 (2025-08-25)
 - Added mobile responsive layout fixes
 - Fixed horizontal scrolling on iPhone devices
