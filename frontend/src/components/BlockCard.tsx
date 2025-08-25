@@ -100,32 +100,97 @@ export function BlockCard({ block }: BlockCardProps) {
   }
 
   return (
-    <button
-      onClick={() => setExpanded(block.id)}
-      onKeyDown={(e) => {
-        if (e.key === 'Enter' || e.key === ' ') {
-          e.preventDefault();
-          setExpanded(block.id);
-        }
-      }}
-      aria-expanded={isExpanded}
-      aria-label={`${block.depth === 1 ? 'Objection' : 'Counter'}${isExpanded ? ', expanded' : ', collapsed'}`}
-      className="w-full text-left p-4 sharp-corners"
-      style={{
-        height: isExpanded ? 'auto' : 'var(--closed-card-height)',
-        minHeight: isExpanded ? 'var(--expander-min-height)' : 'var(--closed-card-height)',
-        backgroundColor: blockColor,
-        border: `var(--border-width)px solid var(--border-color)`
-      }}
-    >
-      <div className="text-sm uppercase tracking-wide mb-2" 
-           style={{ fontSize: 'var(--label-size)' }}>
-        {block.depth === 1 ? 'Objection' : 'Counter'}
-      </div>
+    <div className="w-full">
+      {/* Top row - always same size, shows text when closed, empty when open */}
+      <button
+        onClick={() => setExpanded(block.id)}
+        onKeyDown={(e) => {
+          if (e.key === 'Enter' || e.key === ' ') {
+            e.preventDefault();
+            setExpanded(block.id);
+          }
+        }}
+        aria-expanded={isExpanded}
+        aria-label={`Block ${isExpanded ? 'expanded' : 'collapsed'}`}
+        className="w-full text-left p-4 sharp-corners"
+        style={{
+          height: 'var(--closed-card-height)',
+          minHeight: 'var(--closed-card-height)',
+          backgroundColor: blockColor,
+          border: `var(--border-width)px solid var(--border-color)`
+        }}
+      >
+        {!isExpanded && (
+          <div className="text-clamp">
+            {block.text}
+          </div>
+        )}
+      </button>
       
-      <div className={isExpanded ? '' : 'text-clamp'}>
-        {block.text}
-      </div>
-    </button>
+      {/* Bottom row - only appears when open, full width with text + buttons */}
+      {isExpanded && (
+        <div className="expanded-full-width">
+          <div className="w-full p-4 sharp-corners" 
+               style={{
+                 minHeight: 'var(--expander-min-height)',
+                 backgroundColor: blockColor,
+                 border: `var(--border-width)px solid var(--border-color)`,
+                 marginTop: '2px'
+               }}>
+            <div className="mb-4">
+              {block.text}
+            </div>
+            
+            <div className="flex gap-2">
+              <button
+                onClick={(e) => {
+                  e.stopPropagation();
+                  agreeToBlock(block.id);
+                }}
+                className="px-4 py-2 text-sm font-medium sharp-corners"
+                style={{
+                  backgroundColor: '#111111',
+                  color: '#FFFFFF'
+                }}
+              >
+                Agree
+              </button>
+              
+              <button
+                onClick={(e) => {
+                  e.stopPropagation();
+                  createDraft(block.id, '');
+                }}
+                className="px-4 py-2 text-sm font-medium sharp-corners"
+                style={{
+                  backgroundColor: '#EFEFEF',
+                  color: '#111111',
+                  border: `var(--border-width)px solid var(--border-color)`
+                }}
+              >
+                Challenge
+              </button>
+              
+              {block.history.length > 0 && (
+                <button
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    setHistoryOpen(true);
+                  }}
+                  className="px-4 py-2 text-sm font-medium sharp-corners"
+                  style={{
+                    backgroundColor: '#EFEFEF',
+                    color: '#111111',
+                    border: `var(--border-width)px solid var(--border-color)`
+                  }}
+                >
+                  History
+                </button>
+              )}
+            </div>
+          </div>
+        </div>
+      )}
+    </div>
   );
 }
