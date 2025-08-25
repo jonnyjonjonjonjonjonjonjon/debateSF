@@ -32,6 +32,18 @@ body {
   margin-top: 2px;
 }
 
+.expanded-full-width {
+  position: relative;
+  width: 100vw;
+  left: 50%;
+  right: 50%;
+  margin-left: -50vw;
+  margin-right: -50vw;
+  max-width: 100vw;
+  box-sizing: border-box;
+  padding: 0 16px;
+}
+
 @media (prefers-reduced-motion: reduce) {
   * {
     animation-duration: 0.01ms !important;

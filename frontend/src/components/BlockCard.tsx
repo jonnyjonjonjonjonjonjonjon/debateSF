@@ -126,56 +126,6 @@ export function BlockCard({ block }: BlockCardProps) {
       <div className={isExpanded ? '' : 'text-clamp'}>
         {block.text}
       </div>
-      
-      {isExpanded && (
-        <div className="flex gap-2 mt-4">
-          <button
-            onClick={(e) => {
-              e.stopPropagation();
-              agreeToBlock(block.id);
-            }}
-            className="px-4 py-2 text-sm font-medium sharp-corners"
-            style={{
-              backgroundColor: '#111111',
-              color: '#FFFFFF'
-            }}
-          >
-            Agree
-          </button>
-          
-          <button
-            onClick={(e) => {
-              e.stopPropagation();
-              createDraft(block.id, '');
-            }}
-            className="px-4 py-2 text-sm font-medium sharp-corners"
-            style={{
-              backgroundColor: '#EFEFEF',
-              color: '#111111',
-              border: `var(--border-width)px solid var(--border-color)`
-            }}
-          >
-            Challenge
-          </button>
-          
-          {block.history.length > 0 && (
-            <button
-              onClick={(e) => {
-                e.stopPropagation();
-                setHistoryOpen(true);
-              }}
-              className="px-4 py-2 text-sm font-medium sharp-corners"
-              style={{
-                backgroundColor: '#EFEFEF',
-                color: '#111111',
-                border: `var(--border-width)px solid var(--border-color)`
-              }}
-            >
-              History
-            </button>
-          )}
-        </div>
-      )}
     </button>
   );
 }

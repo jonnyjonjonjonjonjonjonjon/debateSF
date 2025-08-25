@@ -1,6 +1,7 @@
 import { useDebateStore } from '../store/store';
 import { BlockCard } from './BlockCard';
 import { DraftCard } from './DraftCard';
+import { getBlockColor } from '../utils/colors';
 
 interface TreeProps {
   blockId: string;
@@ -54,61 +55,47 @@ export function Tree({ blockId }: TreeProps) {
           
           {/* Expanded block full-width row */}
           {hasExpandedChild && (
-            <div className="w-full">
+            <div className="w-full expanded-full-width">
               {children
                 .filter(child => expandedBlockId === child.id)
-                .map((child) => (
-                  <div key={`expanded-${child.id}`} className="w-full expanded-content">
-                    <div className="w-full p-4 sharp-corners" 
-                         style={{
-                           minHeight: 'var(--expander-min-height)',
-                           backgroundColor: 'var(--opening-bg)',
-                           border: `var(--border-width)px solid var(--border-color)`
-                         }}>
-                      <div className="text-sm uppercase tracking-wide mb-2" 
-                           style={{ fontSize: 'var(--label-size)' }}>
-                        {child.depth === 1 ? 'Objection' : 'Counter'}
-                      </div>
-                      
-                      <div className="mb-4">
-                        {child.text}
-                      </div>
-                      
-                      <div className="flex gap-2">
-                        <button
-                          onClick={() => {
-                            const { agreeToBlock } = useDebateStore.getState();
-                            agreeToBlock(child.id);
-                          }}
-                          className="px-4 py-2 text-sm font-medium sharp-corners"
-                          style={{
-                            backgroundColor: '#111111',
-                            color: '#FFFFFF'
-                          }}
-                        >
-                          Agree
-                        </button>
+                .map((child) => {
+                  const childColor = getBlockColor(child, debate.blocks);
+                  return (
+                    <div key={`expanded-${child.id}`} className="w-full expanded-content">
+                      <div className="w-full p-4 sharp-corners" 
+                           style={{
+                             minHeight: 'var(--expander-min-height)',
+                             backgroundColor: childColor,
+                             border: `var(--border-width)px solid var(--border-color)`
+                           }}>
+                        <div className="text-sm uppercase tracking-wide mb-2" 
+                             style={{ fontSize: 'var(--label-size)' }}>
+                          {child.depth === 1 ? 'Objection' : 'Counter'}
+                        </div>
                         
-                        <button
-                          onClick={() => {
-                            const { createDraft } = useDebateStore.getState();
-                            createDraft(child.id, '');
-                          }}
-                          className="px-4 py-2 text-sm font-medium sharp-corners"
-                          style={{
-                            backgroundColor: '#EFEFEF',
-                            color: '#111111',
-                            border: `var(--border-width)px solid var(--border-color)`
-                          }}
-                        >
-                          Challenge
-                        </button>
+                        <div className="mb-4">
+                          {child.text}
+                        </div>
                         
-                        {child.history.length > 0 && (
+                        <div className="flex gap-2">
                           <button
                             onClick={() => {
-                              const { setHistoryOpen } = useDebateStore.getState();
-                              setHistoryOpen(true);
+                              const { agreeToBlock } = useDebateStore.getState();
+                              agreeToBlock(child.id);
+                            }}
+                            className="px-4 py-2 text-sm font-medium sharp-corners"
+                            style={{
+                              backgroundColor: '#111111',
+                              color: '#FFFFFF'
+                            }}
+                          >
+                            Agree
+                          </button>
+                          
+                          <button
+                            onClick={() => {
+                              const { createDraft } = useDebateStore.getState();
+                              createDraft(child.id, '');
                             }}
                             className="px-4 py-2 text-sm font-medium sharp-corners"
                             style={{
@@ -117,21 +104,38 @@ export function Tree({ blockId }: TreeProps) {
                               border: `var(--border-width)px solid var(--border-color)`
                             }}
                           >
-                            History
+                            Challenge
                           </button>
-                        )}
+                          
+                          {child.history.length > 0 && (
+                            <button
+                              onClick={() => {
+                                const { setHistoryOpen } = useDebateStore.getState();
+                                setHistoryOpen(true);
+                              }}
+                              className="px-4 py-2 text-sm font-medium sharp-corners"
+                              style={{
+                                backgroundColor: '#EFEFEF',
+                                color: '#111111',
+                                border: `var(--border-width)px solid var(--border-color)`
+                              }}
+                            >
+                              History
+                            </button>
+                          )}
+                        </div>
                       </div>
+                      
+                      {/* Render children of expanded block */}
+                      {debate.blocks
+                        .filter(b => b.parentId === child.id)
+                        .sort((a, b) => a.order - b.order)
+                        .map(grandchild => (
+                          <Tree key={grandchild.id} blockId={grandchild.id} />
+                        ))}
                     </div>
-                    
-                    {/* Render children of expanded block */}
-                    {debate.blocks
-                      .filter(b => b.parentId === child.id)
-                      .sort((a, b) => a.order - b.order)
-                      .map(grandchild => (
-                        <Tree key={grandchild.id} blockId={grandchild.id} />
-                      ))}
-                  </div>
-                ))}
+                  );
+                })}
             </div>
           )}
         </div>
