@@ -7,7 +7,7 @@ interface TreeProps {
 }
 
 export function Tree({ blockId }: TreeProps) {
-  const { debate, draft } = useDebateStore();
+  const { debate, draft, expandedBlockId } = useDebateStore();
   
   if (!debate) return null;
 
@@ -19,10 +19,13 @@ export function Tree({ blockId }: TreeProps) {
     .sort((a, b) => a.order - b.order);
 
   const showDraft = draft && draft.parentId === blockId;
+  const isExpanded = expandedBlockId === blockId;
 
   return (
     <div className="w-full">
-      <BlockCard block={block} />
+      <div className={isExpanded ? "expanded-block-container" : "w-full"}>
+        <BlockCard block={block} />
+      </div>
       
       {(children.length > 0 || showDraft) && (
         <div className="w-full">
