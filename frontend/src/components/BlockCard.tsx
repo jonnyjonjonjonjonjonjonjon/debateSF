@@ -130,18 +130,20 @@ export function BlockCard({ block }: BlockCardProps) {
       {/* Bottom row - only appears when open, full width with text + buttons */}
       {isExpanded && (
         <div className="expanded-full-width">
-          <div className="w-full p-4 sharp-corners" 
-               style={{
-                 minHeight: 'var(--expander-min-height)',
-                 backgroundColor: blockColor,
-                 border: `var(--border-width)px solid var(--border-color)`,
-                 marginTop: '2px'
-               }}>
-            <div className="mb-4">
+          <div 
+            className="w-full p-4 sharp-corners" 
+            style={{
+              minHeight: 'var(--expander-min-height)',
+              backgroundColor: blockColor,
+              border: `var(--border-width)px solid var(--border-color)`,
+              marginTop: '2px'
+            }}
+          >
+            <div className="mb-4 text-base">
               {block.text}
             </div>
             
-            <div className="flex gap-2">
+            <div className="flex gap-2 flex-wrap">
               <button
                 onClick={(e) => {
                   e.stopPropagation();
