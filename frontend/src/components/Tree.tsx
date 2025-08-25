@@ -29,8 +29,9 @@ export function Tree({ blockId }: TreeProps) {
           <div 
             className="grid no-gap w-full mobile-grid"
             style={{
-              gridTemplateColumns: `repeat(${children.length + (showDraft ? 1 : 0)}, minmax(0, 1fr))`
-            }}
+              gridTemplateColumns: `repeat(${children.length + (showDraft ? 1 : 0)}, minmax(0, 1fr))`,
+              '--mobile-cols': children.length + (showDraft ? 1 : 0)
+            } as React.CSSProperties}
           >
             {children.map((child) => (
               <div key={child.id} className="w-full overflow-hidden">

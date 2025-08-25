@@ -38,13 +38,37 @@ body {
 
 @media (max-width: 768px) {
   .mobile-grid {
-    display: flex !important;
-    flex-direction: column !important;
+    display: grid !important;
+    grid-template-columns: repeat(var(--mobile-cols), minmax(0, 1fr)) !important;
     width: 100% !important;
+    gap: 2px !important;
+    font-size: 0.875rem !important;
   }
   
   .mobile-grid > * {
     width: 100% !important;
     max-width: 100% !important;
+    overflow: hidden !important;
+  }
+  
+  /* Make cards more compact on mobile */
+  @media (max-width: 768px) {
+    .text-sm {
+      font-size: 0.75rem !important;
+    }
+    
+    .p-4 {
+      padding: 0.5rem !important;
+    }
+    
+    .px-3 {
+      padding-left: 0.5rem !important;
+      padding-right: 0.5rem !important;
+    }
+    
+    .py-1 {
+      padding-top: 0.25rem !important;
+      padding-bottom: 0.25rem !important;
+    }
   }
 }
