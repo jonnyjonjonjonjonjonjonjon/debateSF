@@ -8,8 +8,7 @@ export function OpeningCard() {
     expandedBlockId, 
     setExpanded, 
     createDraft, 
-    draft,
-    setHistoryOpen 
+    draft
   } = useDebateStore();
   
   const [isCreatingOpening, setIsCreatingOpening] = useState(false);
@@ -105,22 +104,6 @@ export function OpeningCard() {
               Challenge
             </button>
             
-            {openingBlock.history.length > 0 && (
-              <button
-                onClick={(e) => {
-                  e.stopPropagation();
-                  setHistoryOpen(true);
-                }}
-                className="px-4 py-2 text-sm font-medium sharp-corners"
-                style={{
-                  backgroundColor: '#EFEFEF',
-                  color: '#111111',
-                  border: `var(--border-width)px solid var(--border-color)`
-                }}
-              >
-                History
-              </button>
-            )}
           </div>
         )}
       </button>

@@ -1,4 +1,4 @@
-import { useEffect, useRef } from 'react';
+import { useRef } from 'react';
 import { useDebateStore } from '../store/store';
 import { BlockCard } from './BlockCard';
 import { DraftCard } from './DraftCard';
