@@ -123,7 +123,10 @@ export function BlockCard({ block }: BlockCardProps) {
       }}
     >
       {!isExpanded && (
-        <div className="text-clamp">
+        <div 
+          className={block.depth === 0 ? "text-clamp-center" : "text-clamp"}
+          style={block.depth === 0 ? { fontSize: '1.125rem' } : {}}
+        >
           <RichText text={block.text} />
         </div>
       )}

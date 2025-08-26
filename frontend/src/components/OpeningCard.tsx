@@ -83,9 +83,24 @@ export function OpeningCard() {
           Opening Statement
         </div>
         
-        <div className={isExpanded ? '' : 'text-clamp'}>
-          {openingBlock.text}
-        </div>
+{isExpanded ? (
+          <div>{openingBlock.text}</div>
+        ) : (
+          <div 
+            style={{
+              textAlign: 'center',
+              height: 'calc(var(--closed-card-height) - 80px)',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              overflow: 'hidden'
+            }}
+          >
+            <div style={{ textAlign: 'center' }}>
+              {openingBlock.text.length > 100 ? openingBlock.text.substring(0, 100) + '...' : openingBlock.text}
+            </div>
+          </div>
+        )}
         
         {isExpanded && (
           <div className="flex gap-2 mt-4">

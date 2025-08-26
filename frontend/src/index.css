@@ -22,6 +22,14 @@ body {
   overflow: hidden;
 }
 
+.text-clamp-center {
+  display: -webkit-box;
+  -webkit-line-clamp: var(--text-clamp-lines);
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+  text-align: center;
+}
+
 .sharp-corners {
   border-radius: var(--border-radius);
 }
