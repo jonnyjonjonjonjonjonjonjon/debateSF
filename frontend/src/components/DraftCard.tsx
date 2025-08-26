@@ -21,10 +21,10 @@ export function DraftCard({ onCancel }: DraftCardProps) {
     if (draft && draftRef.current && textareaRef.current) {
       // Use setTimeout to ensure DOM is updated and layout is complete
       setTimeout(() => {
-        // Scroll the draft container into view first
+        // Scroll the draft container into view first - top of draft at top of screen
         draftRef.current?.scrollIntoView({ 
           behavior: 'smooth', 
-          block: 'center',
+          block: 'start',
           inline: 'nearest'
         });
         
