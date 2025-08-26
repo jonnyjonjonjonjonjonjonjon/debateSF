@@ -3,6 +3,7 @@ import { useDebateStore } from '../store/store';
 import { BlockCard } from './BlockCard';
 import { DraftCard } from './DraftCard';
 import { getBlockColor } from '../utils/colors';
+import { RichText } from './RichText';
 
 interface TreeProps {
   blockId: string;
@@ -48,7 +49,7 @@ export function Tree({ blockId }: TreeProps) {
               marginBottom: 'var(--spacing-md)',
               color: block.depth === 0 ? 'var(--opening-fg)' : 'var(--text-color)'
             }}>
-              {block.text}
+              <RichText text={block.text} />
             </div>
             
             {!showDraft && (

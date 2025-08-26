@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { useDebateStore, type DebateBlock } from '../store/store';
 import { getBlockColor } from '../utils/colors';
+import { RichText } from './RichText';
 
 interface BlockCardProps {
   block: DebateBlock;
@@ -123,7 +124,7 @@ export function BlockCard({ block }: BlockCardProps) {
     >
       {!isExpanded && (
         <div className="text-clamp">
-          {block.text}
+          <RichText text={block.text} />
         </div>
       )}
     </button>

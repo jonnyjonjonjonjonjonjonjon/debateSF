@@ -1,0 +1,304 @@
+import React, { useRef, useEffect, useCallback, useState } from 'react';
+
+interface WhatsAppInputProps {
+  value: string;
+  onChange: (value: string) => void;
+  onKeyDown?: (e: React.KeyboardEvent) => void;
+  placeholder?: string;
+  className?: string;
+  style?: React.CSSProperties;
+  autoFocus?: boolean;
+  'aria-label'?: string;
+}
+
+export function WhatsAppInput({ 
+  value, 
+  onChange, 
+  onKeyDown, 
+  placeholder, 
+  className = '', 
+  style = {},
+  autoFocus = false,
+  'aria-label': ariaLabel 
+}: WhatsAppInputProps) {
+  const textareaRef = useRef<HTMLTextAreaElement>(null);
+  const [showHint, setShowHint] = useState(false);
+
+  // Handle input changes
+  const handleInput = useCallback((e: React.ChangeEvent<HTMLTextAreaElement>) => {
+    const newValue = e.target.value;
+    onChange(newValue);
+    
+    // Show hint when typing formatting characters or list markers
+    const hasFormatting = /[*_~`]/.test(newValue) || /^\s*[-*]\s/.test(newValue) || /^\s*\d+\.\s/.test(newValue);
+    setShowHint(hasFormatting);
+  }, [onChange]);
+
+  // Handle key events
+  const handleKeyDown = useCallback((e: React.KeyboardEvent<HTMLTextAreaElement>) => {
+    // Handle Tab for list indentation
+    if (e.key === 'Tab') {
+      const textarea = textareaRef.current;
+      if (textarea) {
+        const { selectionStart, selectionEnd } = textarea;
+        const currentValue = textarea.value;
+        
+        // Get the current line
+        const beforeCursor = currentValue.substring(0, selectionStart);
+        const afterCursor = currentValue.substring(selectionEnd);
+        const lines = beforeCursor.split('\n');
+        const currentLine = lines[lines.length - 1];
+        
+        // Check for numbered list
+        const numberedMatch = currentLine.match(/^(\s*)(\d+)\.\s(.*)$/);
+        if (numberedMatch) {
+          e.preventDefault();
+          const indent = numberedMatch[1];
+          const content = numberedMatch[3];
+          
+          if (!e.shiftKey) {
+            // Add indentation (convert to sub-list starting with 1.)
+            const newIndent = indent + '  ';
+            const newLine = `${newIndent}1. ${content}`;
+            const beforeCurrentLine = beforeCursor.substring(0, beforeCursor.lastIndexOf('\n') + 1);
+            const newValue = beforeCurrentLine + newLine + afterCursor;
+            
+            onChange(newValue);
+            
+            // Set cursor position at end of content
+            setTimeout(() => {
+              textarea.setSelectionRange(
+                beforeCurrentLine.length + newLine.length,
+                beforeCurrentLine.length + newLine.length
+              );
+            }, 0);
+          } else if (indent.length >= 2) {
+            // Remove indentation (Shift+Tab)
+            const newIndent = indent.substring(2);
+            const newLine = `${newIndent}1. ${content}`;
+            const beforeCurrentLine = beforeCursor.substring(0, beforeCursor.lastIndexOf('\n') + 1);
+            const newValue = beforeCurrentLine + newLine + afterCursor;
+            
+            onChange(newValue);
+            
+            // Set cursor position at end of content  
+            setTimeout(() => {
+              textarea.setSelectionRange(
+                beforeCurrentLine.length + newLine.length,
+                beforeCurrentLine.length + newLine.length
+              );
+            }, 0);
+          }
+          return;
+        }
+        
+        // Check for bullet list
+        const bulletMatch = currentLine.match(/^(\s*)([-*])\s(.*)$/);
+        if (bulletMatch) {
+          e.preventDefault();
+          const indent = bulletMatch[1];
+          const bulletChar = bulletMatch[2];
+          const content = bulletMatch[3];
+          
+          if (!e.shiftKey) {
+            // Add indentation (keep same bullet style)
+            const newIndent = indent + '  ';
+            const newLine = `${newIndent}${bulletChar} ${content}`;
+            const beforeCurrentLine = beforeCursor.substring(0, beforeCursor.lastIndexOf('\n') + 1);
+            const newValue = beforeCurrentLine + newLine + afterCursor;
+            
+            onChange(newValue);
+            
+            // Set cursor position at end of content
+            setTimeout(() => {
+              textarea.setSelectionRange(
+                beforeCurrentLine.length + newLine.length,
+                beforeCurrentLine.length + newLine.length
+              );
+            }, 0);
+          } else if (indent.length >= 2) {
+            // Remove indentation (Shift+Tab)
+            const newIndent = indent.substring(2);
+            const newLine = `${newIndent}${bulletChar} ${content}`;
+            const beforeCurrentLine = beforeCursor.substring(0, beforeCursor.lastIndexOf('\n') + 1);
+            const newValue = beforeCurrentLine + newLine + afterCursor;
+            
+            onChange(newValue);
+            
+            // Set cursor position at end of content
+            setTimeout(() => {
+              textarea.setSelectionRange(
+                beforeCurrentLine.length + newLine.length,
+                beforeCurrentLine.length + newLine.length
+              );
+            }, 0);
+          }
+          return;
+        }
+      }
+    }
+    
+    if (e.key === 'Enter' && !e.shiftKey) {
+      const textarea = textareaRef.current;
+      if (textarea) {
+        const { selectionStart, selectionEnd } = textarea;
+        const currentValue = textarea.value;
+        
+        // Get the current line
+        const beforeCursor = currentValue.substring(0, selectionStart);
+        const lines = beforeCursor.split('\n');
+        const currentLine = lines[lines.length - 1];
+        
+        // Check for numbered list pattern (1. , 2. , etc.)
+        const numberedMatch = currentLine.match(/^(\s*)(\d+)\.\s(.*)$/);
+        if (numberedMatch) {
+          e.preventDefault();
+          const indent = numberedMatch[1];
+          const currentNumber = parseInt(numberedMatch[2]);
+          const content = numberedMatch[3];
+          
+          // If the current list item is empty, exit the list
+          if (content.trim() === '') {
+            // Remove the current empty list item and add a regular line break
+            const beforeCurrentLine = beforeCursor.substring(0, beforeCursor.lastIndexOf('\n'));
+            const newValue = 
+              beforeCurrentLine + 
+              '\n\n' + 
+              currentValue.substring(selectionEnd);
+            
+            onChange(newValue);
+            
+            // Set cursor position at the new line
+            setTimeout(() => {
+              textarea.setSelectionRange(
+                beforeCurrentLine.length + 2, 
+                beforeCurrentLine.length + 2
+              );
+            }, 0);
+            return;
+          }
+          
+          const nextNumber = currentNumber + 1;
+          const newListItem = `\n${indent}${nextNumber}. `;
+          
+          // Insert the new list item
+          const newValue = 
+            currentValue.substring(0, selectionStart) + 
+            newListItem + 
+            currentValue.substring(selectionEnd);
+          
+          onChange(newValue);
+          
+          // Set cursor position after the new list marker
+          setTimeout(() => {
+            textarea.setSelectionRange(
+              selectionStart + newListItem.length, 
+              selectionStart + newListItem.length
+            );
+          }, 0);
+          return;
+        }
+        
+        // Check for bullet list pattern (- , * )
+        const bulletMatch = currentLine.match(/^(\s*)[-*]\s(.*)$/);
+        if (bulletMatch) {
+          e.preventDefault();
+          const indent = bulletMatch[1];
+          const content = bulletMatch[2];
+          const bulletChar = currentLine.includes('*') ? '*' : '-';
+          
+          // If the current list item is empty, exit the list
+          if (content.trim() === '') {
+            // Remove the current empty list item and add a regular line break
+            const beforeCurrentLine = beforeCursor.substring(0, beforeCursor.lastIndexOf('\n'));
+            const newValue = 
+              beforeCurrentLine + 
+              '\n\n' + 
+              currentValue.substring(selectionEnd);
+            
+            onChange(newValue);
+            
+            // Set cursor position at the new line
+            setTimeout(() => {
+              textarea.setSelectionRange(
+                beforeCurrentLine.length + 2, 
+                beforeCurrentLine.length + 2
+              );
+            }, 0);
+            return;
+          }
+          
+          const newListItem = `\n${indent}${bulletChar} `;
+          
+          // Insert the new list item
+          const newValue = 
+            currentValue.substring(0, selectionStart) + 
+            newListItem + 
+            currentValue.substring(selectionEnd);
+          
+          onChange(newValue);
+          
+          // Set cursor position after the new list marker
+          setTimeout(() => {
+            textarea.setSelectionRange(
+              selectionStart + newListItem.length, 
+              selectionStart + newListItem.length
+            );
+          }, 0);
+          return;
+        }
+      }
+    }
+    
+    // Handle other key events
+    if (onKeyDown) {
+      onKeyDown(e);
+    }
+  }, [onKeyDown, onChange]);
+
+  // Auto focus
+  useEffect(() => {
+    if (autoFocus && textareaRef.current) {
+      textareaRef.current.focus();
+    }
+  }, [autoFocus]);
+
+  return (
+    <div style={{ position: 'relative' }}>
+      <textarea
+        ref={textareaRef}
+        value={value}
+        onChange={handleInput}
+        onKeyDown={handleKeyDown}
+        placeholder={placeholder}
+        aria-label={ariaLabel}
+        className={className}
+        style={{
+          ...style,
+          fontFamily: 'inherit',
+          lineHeight: '1.4',
+          borderColor: showHint ? '#007AFF' : style.borderColor
+        }}
+      />
+      
+      {showHint && (
+        <div
+          style={{
+            position: 'absolute',
+            bottom: '100%',
+            right: 0,
+            backgroundColor: 'rgba(0, 123, 255, 0.1)',
+            color: '#007AFF',
+            padding: '2px 6px',
+            borderRadius: '4px',
+            fontSize: '10px',
+            marginBottom: '2px',
+            fontWeight: '500'
+          }}
+        >
+          Formatting: *bold* _italic_ ~strike~ `code` • Lists: 1. or - • Tab to indent
+        </div>
+      )}
+    </div>
+  );
+}

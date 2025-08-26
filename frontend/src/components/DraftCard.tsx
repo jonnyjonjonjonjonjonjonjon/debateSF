@@ -1,5 +1,6 @@
 import { useEffect, useRef } from 'react';
 import { useDebateStore } from '../store/store';
+import { WhatsAppInput } from './WhatsAppInput';
 
 interface DraftCardProps {
   onCancel?: () => void;
@@ -14,11 +15,10 @@ export function DraftCard({ onCancel }: DraftCardProps) {
   } = useDebateStore();
   
   const draftRef = useRef<HTMLDivElement>(null);
-  const textareaRef = useRef<HTMLTextAreaElement>(null);
   
-  // Auto-scroll to draft when it appears and focus textarea
+  // Auto-scroll to draft when it appears
   useEffect(() => {
-    if (draft && draftRef.current && textareaRef.current) {
+    if (draft && draftRef.current) {
       // Use setTimeout to ensure DOM is updated and layout is complete
       setTimeout(() => {
         // Scroll the draft container into view first - top of draft at top of screen
@@ -27,11 +27,6 @@ export function DraftCard({ onCancel }: DraftCardProps) {
           block: 'start',
           inline: 'nearest'
         });
-        
-        // Then focus the textarea after scrolling is done
-        setTimeout(() => {
-          textareaRef.current?.focus({ preventScroll: true });
-        }, 400);
       }, 100);
     }
   }, [draft?.id]); // Only trigger when a new draft is created
@@ -61,10 +56,9 @@ export function DraftCard({ onCancel }: DraftCardProps) {
         {isOpening ? 'Draft Opening' : 'Draft Response'}
       </div>
       
-      <textarea
-        ref={textareaRef}
+      <WhatsAppInput
         value={draft.text}
-        onChange={(e) => updateDraft(e.target.value)}
+        onChange={updateDraft}
         onKeyDown={(e) => {
           if (e.key === 'Escape') {
             handleCancel();
@@ -74,11 +68,13 @@ export function DraftCard({ onCancel }: DraftCardProps) {
         }}
         placeholder={isOpening ? 'Enter your opening statement... (Ctrl+Enter to confirm, Esc to cancel)' : 'Enter your response... (Ctrl+Enter to confirm, Esc to cancel)'}
         aria-label={isOpening ? 'Draft opening statement' : 'Draft response'}
-        className="w-full p-2 mb-4 sharp-corners resize-none"
+        className="w-full mb-4 sharp-corners resize-none"
         style={{
           backgroundColor: 'var(--surface-color)',
           color: 'var(--text-color)',
           border: `var(--border-width)px solid var(--border-color)`,
+          borderColor: 'var(--border-color)',
+          padding: '0.5rem',
           minHeight: '8rem',
           maxHeight: '40vh',
           height: 'auto',

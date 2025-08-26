@@ -44,6 +44,93 @@ body {
   box-sizing: border-box;
 }
 
+/* Rich text input overlay styles */
+.rich-text-input-container {
+  position: relative;
+}
+
+.rich-text-overlay {
+  pointer-events: none;
+  z-index: 1;
+}
+
+.rich-text-overlay .rich-line {
+  margin-bottom: 0;
+}
+
+/* Rich text formatting styles */
+.rich-text {
+  line-height: 1.4;
+}
+
+.rich-line {
+  margin-bottom: 0.25rem;
+}
+
+.rich-line:last-child {
+  margin-bottom: 0;
+}
+
+.rich-bold {
+  font-weight: 600;
+}
+
+.rich-italic {
+  font-style: italic;
+}
+
+.rich-strikethrough {
+  text-decoration: line-through;
+}
+
+.rich-code {
+  background-color: rgba(0, 0, 0, 0.1);
+  padding: 0.125rem 0.25rem;
+  border-radius: 0.25rem;
+  font-family: 'SF Mono', 'Monaco', 'Inconsolata', 'Roboto Mono', monospace;
+  font-size: 0.875em;
+}
+
+.rich-link {
+  color: #007AFF;
+  text-decoration: none;
+  border-bottom: 1px solid transparent;
+}
+
+.rich-link:hover {
+  border-bottom-color: #007AFF;
+}
+
+.rich-list-item {
+  margin-left: 1rem;
+  margin-bottom: 0.25rem;
+  position: relative;
+}
+
+.rich-bullet {
+  list-style: none;
+}
+
+.rich-bullet::before {
+  content: '•';
+  position: absolute;
+  left: -1rem;
+  color: var(--text-color);
+}
+
+.rich-numbered {
+  list-style: decimal;
+  list-style-position: outside;
+}
+
+.rich-quote {
+  border-left: 3px solid #ccc;
+  padding-left: 0.75rem;
+  margin: 0.5rem 0;
+  font-style: italic;
+  color: rgba(0, 0, 0, 0.7);
+}
+
 @media (prefers-reduced-motion: reduce) {
   * {
     animation-duration: 0.01ms !important;
