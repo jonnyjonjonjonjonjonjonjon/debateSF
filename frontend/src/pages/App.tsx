@@ -50,8 +50,8 @@ export default function App() {
         <div className="flex justify-between items-center">
           <div className="flex items-center gap-3">
             <h1 className="text-xl font-bold">Debate Mapper 🚀</h1>
-            <span className="text-sm text-white font-mono bg-purple-600 px-2 py-1 rounded font-bold">
-              v1.3.2 - DRAFT CONTROLS FIX!
+            <span className="text-sm text-white font-mono bg-orange-600 px-2 py-1 rounded font-bold">
+              v1.3.3 - CLEAN DRAFT UX!
             </span>
           </div>
           <button

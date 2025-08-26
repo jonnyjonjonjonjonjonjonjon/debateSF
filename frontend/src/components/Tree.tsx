@@ -51,34 +51,35 @@ export function Tree({ blockId }: TreeProps) {
               {block.text}
             </div>
             
-            <div className="flex" style={{ gap: 'var(--spacing-sm)' }}>
-              <button
-                onClick={() => agreeToBlock(block.id)}
-                className="text-sm font-medium sharp-corners"
-                style={{
-                  backgroundColor: '#111111',
-                  color: '#FFFFFF',
-                  padding: 'var(--spacing-sm) var(--spacing-md)',
-                  border: 'none'
-                }}
-              >
-                Edit
-              </button>
-              
-              <button
-                onClick={() => createDraft(block.id, '')}
-                className="text-sm font-medium sharp-corners"
-                style={{
-                  backgroundColor: '#EFEFEF',
-                  color: '#111111',
-                  border: `var(--border-width)px solid var(--border-color)`,
-                  padding: 'var(--spacing-sm) var(--spacing-md)'
-                }}
-              >
-                Challenge
-              </button>
-              
-            </div>
+            {!showDraft && (
+              <div className="flex" style={{ gap: 'var(--spacing-sm)' }}>
+                <button
+                  onClick={() => agreeToBlock(block.id)}
+                  className="text-sm font-medium sharp-corners"
+                  style={{
+                    backgroundColor: '#111111',
+                    color: '#FFFFFF',
+                    padding: 'var(--spacing-sm) var(--spacing-md)',
+                    border: 'none'
+                  }}
+                >
+                  Edit
+                </button>
+                
+                <button
+                  onClick={() => createDraft(block.id, '')}
+                  className="text-sm font-medium sharp-corners"
+                  style={{
+                    backgroundColor: '#EFEFEF',
+                    color: '#111111',
+                    border: `var(--border-width)px solid var(--border-color)`,
+                    padding: 'var(--spacing-sm) var(--spacing-md)'
+                  }}
+                >
+                  Challenge
+                </button>
+              </div>
+            )}
           </div>
           
           {/* Children of expanded block render below */}
