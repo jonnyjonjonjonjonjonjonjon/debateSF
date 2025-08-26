@@ -23,13 +23,21 @@ export interface Draft {
 
 interface DebateState {
   debate: Debate | null;
+  debates: Debate[];
+  currentDebateId: Id | null;
   expandedBlockId: Id | null;
   editingBlockId: Id | null;
   draft: Draft | null;
   loading: boolean;
   error: string | null;
+  showDebateSelection: boolean;
   
   loadDebate: () => Promise<void>;
+  loadDebates: () => Promise<void>;
+  createNewDebate: () => Promise<void>;
+  selectDebate: (debateId: Id) => Promise<void>;
+  deleteDebateById: (debateId: Id) => Promise<void>;
+  setShowDebateSelection: (show: boolean) => void;
   setExpanded: (blockId: Id | null) => void;
   setEditing: (blockId: Id | null) => void;
   createDraft: (parentId: Id | null, text: string) => void;
@@ -50,11 +58,120 @@ const API_BASE = import.meta.env.VITE_API_URL ||
 
 export const useDebateStore = create<DebateState>((set, get) => ({
   debate: null,
+  debates: [],
+  currentDebateId: null,
   expandedBlockId: null,
   editingBlockId: null,
   draft: null,
   loading: false,
   error: null,
+  showDebateSelection: false,
+
+  loadDebates: async () => {
+    set({ loading: true, error: null });
+    try {
+      const response = await fetch(`${API_BASE}/debates`);
+      if (!response.ok) {
+        throw new Error(`Failed to load debates (${response.status})`);
+      }
+      const debates = await response.json();
+      set({ debates, loading: false });
+    } catch (error) {
+      console.error('Error loading debates:', error);
+      set({ 
+        error: error instanceof Error ? error.message : 'Failed to load debates', 
+        loading: false 
+      });
+    }
+  },
+
+  createNewDebate: async () => {
+    set({ loading: true, error: null });
+    try {
+      const response = await fetch(`${API_BASE}/debate`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' }
+      });
+      if (!response.ok) {
+        throw new Error(`Failed to create debate (${response.status})`);
+      }
+      const debate = await response.json();
+      set({ 
+        debate, 
+        currentDebateId: debate._id,
+        expandedBlockId: null,
+        editingBlockId: null,
+        draft: null,
+        loading: false 
+      });
+    } catch (error) {
+      console.error('Error creating debate:', error);
+      set({ 
+        error: error instanceof Error ? error.message : 'Failed to create debate', 
+        loading: false 
+      });
+    }
+  },
+
+  selectDebate: async (debateId: Id) => {
+    set({ loading: true, error: null });
+    try {
+      const response = await fetch(`${API_BASE}/debate/${debateId}`);
+      if (!response.ok) {
+        throw new Error(`Failed to load debate (${response.status})`);
+      }
+      const debate = await response.json();
+      set({ 
+        debate, 
+        currentDebateId: debateId,
+        expandedBlockId: null,
+        editingBlockId: null,
+        draft: null,
+        showDebateSelection: false,
+        loading: false 
+      });
+    } catch (error) {
+      console.error('Error selecting debate:', error);
+      set({ 
+        error: error instanceof Error ? error.message : 'Failed to load debate', 
+        loading: false 
+      });
+    }
+  },
+
+  deleteDebateById: async (debateId: Id) => {
+    set({ loading: true, error: null });
+    try {
+      const response = await fetch(`${API_BASE}/debate/${debateId}`, {
+        method: 'DELETE'
+      });
+      if (!response.ok) {
+        throw new Error(`Failed to delete debate (${response.status})`);
+      }
+      
+      // Reload debates list
+      const { loadDebates } = get();
+      await loadDebates();
+      
+      // If we deleted the current debate, clear it
+      const { currentDebateId } = get();
+      if (currentDebateId === debateId) {
+        set({ debate: null, currentDebateId: null });
+      }
+      
+      set({ loading: false });
+    } catch (error) {
+      console.error('Error deleting debate:', error);
+      set({ 
+        error: error instanceof Error ? error.message : 'Failed to delete debate', 
+        loading: false 
+      });
+    }
+  },
+
+  setShowDebateSelection: (show: boolean) => {
+    set({ showDebateSelection: show });
+  },
 
   loadDebate: async () => {
     set({ loading: true, error: null });
@@ -121,7 +238,12 @@ export const useDebateStore = create<DebateState>((set, get) => ({
       
       if (!response.ok) throw new Error('Failed to create block');
       const debate = await response.json();
-      set({ debate, draft: null, loading: false });
+      set({ 
+        debate, 
+        currentDebateId: debate._id,
+        draft: null, 
+        loading: false 
+      });
     } catch (error) {
       set({ error: (error as Error).message, loading: false });
     }
@@ -207,10 +329,11 @@ export const useDebateStore = create<DebateState>((set, get) => ({
       const debate = await response.json();
       set({ 
         debate, 
+        currentDebateId: debate._id,
         expandedBlockId: null,
         editingBlockId: null,
         draft: null,
-              loading: false 
+        loading: false 
       });
     } catch (error) {
       set({ error: (error as Error).message, loading: false });
