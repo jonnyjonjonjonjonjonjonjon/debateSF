@@ -12,51 +12,62 @@ export interface ParsedElement {
 const urlRegex = /(https?:\/\/[^\s]+)/g;
 
 // Parse inline formatting within a line
-function parseInlineFormatting(text: string): ParsedElement[] {
+function parseInlineFormatting(text: string, depth = 0): ParsedElement[] {
+  // Prevent infinite recursion
+  if (depth > 10) {
+    return [{
+      type: 'text',
+      content: text
+    }];
+  }
+  
   const elements: ParsedElement[] = [];
   let remaining = text;
+  let iterationCount = 0;
+  const maxIterations = text.length * 2; // Safety limit
   
   try {
-    while (remaining.length > 0) {
-    // Check for bold *text*
-    const boldMatch = remaining.match(/^\*([^*]+)\*/);
-    if (boldMatch) {
+    while (remaining.length > 0 && iterationCount < maxIterations) {
+      iterationCount++;
+    // Check for bold *text* - only if properly closed
+    const boldMatch = remaining.match(/^\*([^*\n]+)\*/);
+    if (boldMatch && remaining.indexOf('*', 1) !== -1) {
       elements.push({
         type: 'bold',
         content: boldMatch[1],
-        children: parseInlineFormatting(boldMatch[1])
+        children: parseInlineFormatting(boldMatch[1], depth + 1)
       });
       remaining = remaining.slice(boldMatch[0].length);
       continue;
     }
     
-    // Check for italic _text_
-    const italicMatch = remaining.match(/^_([^_]+)_/);
-    if (italicMatch) {
+    // Check for italic _text_ - only if properly closed
+    const italicMatch = remaining.match(/^_([^_\n]+)_/);
+    if (italicMatch && remaining.indexOf('_', 1) !== -1) {
       elements.push({
         type: 'italic',
         content: italicMatch[1],
-        children: parseInlineFormatting(italicMatch[1])
+        children: parseInlineFormatting(italicMatch[1], depth + 1)
       });
       remaining = remaining.slice(italicMatch[0].length);
       continue;
     }
     
-    // Check for strikethrough ~text~
-    const strikeMatch = remaining.match(/^~([^~]+)~/);
-    if (strikeMatch) {
+    // Check for strikethrough ~text~ - only if properly closed
+    const strikeMatch = remaining.match(/^~([^~\n]+)~/);
+    if (strikeMatch && remaining.indexOf('~', 1) !== -1) {
       elements.push({
         type: 'strikethrough',
         content: strikeMatch[1],
-        children: parseInlineFormatting(strikeMatch[1])
+        children: parseInlineFormatting(strikeMatch[1], depth + 1)
       });
       remaining = remaining.slice(strikeMatch[0].length);
       continue;
     }
     
-    // Check for code `text`
-    const codeMatch = remaining.match(/^`([^`]+)`/);
-    if (codeMatch) {
+    // Check for code `text` - only if properly closed
+    const codeMatch = remaining.match(/^`([^`\n]+)`/);
+    if (codeMatch && remaining.indexOf('`', 1) !== -1) {
       elements.push({
         type: 'code',
         content: codeMatch[1]
@@ -88,6 +99,14 @@ function parseInlineFormatting(text: string): ParsedElement[] {
         });
       }
       break;
+    } else if (nextSpecial === 0) {
+      // We're at a special character but it didn't match any formatting pattern
+      // This means it's incomplete formatting, so treat as plain text
+      elements.push({
+        type: 'text',
+        content: remaining.charAt(0)
+      });
+      remaining = remaining.slice(1);
     } else {
       // Add text up to next special character
       const textContent = remaining.slice(0, nextSpecial);
@@ -98,6 +117,15 @@ function parseInlineFormatting(text: string): ParsedElement[] {
         });
       }
       remaining = remaining.slice(nextSpecial);
+    }
+    
+    // Safety check: if we've hit the iteration limit, treat remaining text as plain text
+    if (iterationCount >= maxIterations && remaining.length > 0) {
+      console.warn('Markdown parsing iteration limit reached, treating remaining text as plain text');
+      elements.push({
+        type: 'text',
+        content: remaining
+      });
     }
     }
   } catch (error) {
@@ -123,7 +151,7 @@ function parseLine(line: string): ParsedElement {
     return {
       type: 'list',
       content: 'bullet',
-      children: parseInlineFormatting(bulletMatch[1])
+      children: parseInlineFormatting(bulletMatch[1], 0)
     };
   }
   
@@ -133,7 +161,7 @@ function parseLine(line: string): ParsedElement {
     return {
       type: 'list',
       content: 'numbered',
-      children: parseInlineFormatting(numberMatch[1])
+      children: parseInlineFormatting(numberMatch[1], 0)
     };
   }
   
@@ -143,7 +171,7 @@ function parseLine(line: string): ParsedElement {
     return {
       type: 'quote',
       content: quoteMatch[1],
-      children: parseInlineFormatting(quoteMatch[1])
+      children: parseInlineFormatting(quoteMatch[1], 0)
     };
   }
   
@@ -151,7 +179,7 @@ function parseLine(line: string): ParsedElement {
     return {
       type: 'line',
       content: line,
-      children: parseInlineFormatting(line)
+      children: parseInlineFormatting(line, 0)
     };
   } catch (error) {
     console.warn('Line parsing error:', error);
