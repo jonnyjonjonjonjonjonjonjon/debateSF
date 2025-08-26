@@ -14,18 +14,25 @@ export function DraftCard({ onCancel }: DraftCardProps) {
   } = useDebateStore();
   
   const draftRef = useRef<HTMLDivElement>(null);
+  const textareaRef = useRef<HTMLTextAreaElement>(null);
   
-  // Auto-scroll to draft when it appears
+  // Auto-scroll to draft when it appears and focus textarea
   useEffect(() => {
-    if (draft && draftRef.current) {
+    if (draft && draftRef.current && textareaRef.current) {
       // Use setTimeout to ensure DOM is updated and layout is complete
       setTimeout(() => {
+        // Scroll the draft container into view first
         draftRef.current?.scrollIntoView({ 
           behavior: 'smooth', 
-          block: 'end',
+          block: 'center',
           inline: 'nearest'
         });
-      }, 300);
+        
+        // Then focus the textarea after scrolling is done
+        setTimeout(() => {
+          textareaRef.current?.focus({ preventScroll: true });
+        }, 400);
+      }, 100);
     }
   }, [draft?.id]); // Only trigger when a new draft is created
   
@@ -55,6 +62,7 @@ export function DraftCard({ onCancel }: DraftCardProps) {
       </div>
       
       <textarea
+        ref={textareaRef}
         value={draft.text}
         onChange={(e) => updateDraft(e.target.value)}
         onKeyDown={(e) => {
@@ -73,7 +81,8 @@ export function DraftCard({ onCancel }: DraftCardProps) {
           border: `var(--border-width)px solid var(--border-color)`,
           minHeight: '8rem',
           maxHeight: '40vh',
-          height: 'auto'
+          height: 'auto',
+          fontSize: '16px' // Prevent zoom on iOS
         }}
         autoFocus
       />
