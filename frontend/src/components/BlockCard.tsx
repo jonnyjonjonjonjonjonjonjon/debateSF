@@ -12,12 +12,9 @@ export function BlockCard({ block }: BlockCardProps) {
     expandedBlockId, 
     editingBlockId,
     setExpanded, 
-    agreeToBlock,
-    createDraft,
     updateBlock,
     deleteBlock,
-    setEditing,
-    setHistoryOpen
+    setEditing
   } = useDebateStore();
   
   const [editText, setEditText] = useState(block.text);
@@ -31,39 +28,38 @@ export function BlockCard({ block }: BlockCardProps) {
   if (isEditing) {
     return (
       <div 
-        className="w-full p-4 sharp-corners"
+        className="w-full sharp-corners"
         style={{
           minHeight: 'var(--expander-min-height)',
           backgroundColor: blockColor,
-          border: `var(--border-width)px solid var(--border-color)`
+          border: `var(--border-width)px solid var(--border-color)`,
+          padding: 'var(--spacing-lg)'
         }}
       >
-        <div className="text-sm uppercase tracking-wide mb-2" 
-             style={{ fontSize: 'var(--label-size)' }}>
-          Edit Mode
-        </div>
-        
         <textarea
           value={editText}
           onChange={(e) => setEditText(e.target.value)}
-          className="w-full h-32 p-2 mb-4 sharp-corners resize-none"
+          className="w-full h-32 mb-4 sharp-corners resize-none"
           style={{
             backgroundColor: 'var(--surface-color)',
             color: 'var(--text-color)',
-            border: `var(--border-width)px solid var(--border-color)`
+            border: `var(--border-width)px solid var(--border-color)`,
+            padding: 'var(--spacing-sm)'
           }}
           autoFocus
         />
         
-        <div className="flex gap-2">
+        <div className="flex" style={{ gap: 'var(--spacing-sm)' }}>
           <button
             onClick={() => {
               updateBlock(block.id, editText);
             }}
-            className="px-4 py-2 text-sm font-medium sharp-corners"
+            className="text-sm font-medium sharp-corners"
             style={{
               backgroundColor: '#111111',
-              color: '#FFFFFF'
+              color: '#FFFFFF',
+              padding: 'var(--spacing-sm) var(--spacing-md)',
+              border: 'none'
             }}
           >
             Save
@@ -74,11 +70,12 @@ export function BlockCard({ block }: BlockCardProps) {
               setEditing(null);
               setEditText(block.text);
             }}
-            className="px-4 py-2 text-sm font-medium sharp-corners"
+            className="text-sm font-medium sharp-corners"
             style={{
               backgroundColor: '#EFEFEF',
               color: '#111111',
-              border: `var(--border-width)px solid var(--border-color)`
+              border: `var(--border-width)px solid var(--border-color)`,
+              padding: 'var(--spacing-sm) var(--spacing-md)'
             }}
           >
             Cancel
@@ -86,10 +83,13 @@ export function BlockCard({ block }: BlockCardProps) {
           
           <button
             onClick={() => deleteBlock(block.id)}
-            className="px-4 py-2 text-sm font-medium sharp-corners ml-auto"
+            className="text-sm font-medium sharp-corners"
             style={{
               backgroundColor: 'var(--danger-color)',
-              color: 'white'
+              color: 'white',
+              padding: 'var(--spacing-sm) var(--spacing-md)',
+              border: 'none',
+              marginLeft: 'auto'
             }}
           >
             Delete
@@ -100,33 +100,32 @@ export function BlockCard({ block }: BlockCardProps) {
   }
 
   return (
-    <>
-      {/* Top row - always same size, shows text when closed, empty when open */}
-      <button
-        onClick={() => setExpanded(block.id)}
-        onKeyDown={(e) => {
-          if (e.key === 'Enter' || e.key === ' ') {
-            e.preventDefault();
-            setExpanded(block.id);
-          }
-        }}
-        aria-expanded={isExpanded}
-        aria-label={`Block ${isExpanded ? 'expanded' : 'collapsed'}`}
-        className="w-full text-left p-4 sharp-corners"
-        style={{
-          height: 'var(--closed-card-height)',
-          minHeight: 'var(--closed-card-height)',
-          backgroundColor: blockColor,
-          border: `var(--border-width)px solid var(--border-color)`
-        }}
-      >
-        {!isExpanded && (
-          <div className="text-clamp">
-            {block.text}
-          </div>
-        )}
-      </button>
-      
-    </>
+    <button
+      onClick={() => setExpanded(block.id)}
+      onKeyDown={(e) => {
+        if (e.key === 'Enter' || e.key === ' ') {
+          e.preventDefault();
+          setExpanded(block.id);
+        }
+      }}
+      aria-expanded={isExpanded}
+      aria-label={`Block ${isExpanded ? 'expanded' : 'collapsed'}`}
+      className="w-full text-left sharp-corners"
+      style={{
+        height: 'var(--closed-card-height)',
+        minHeight: 'var(--closed-card-height)',
+        backgroundColor: blockColor,
+        border: `var(--border-width)px solid var(--border-color)`,
+        padding: 'var(--spacing-md)',
+        display: 'block',
+        color: block.depth === 0 ? 'var(--opening-fg)' : 'var(--text-color)'
+      }}
+    >
+      {!isExpanded && (
+        <div className="text-clamp">
+          {block.text}
+        </div>
+      )}
+    </button>
   );
 }

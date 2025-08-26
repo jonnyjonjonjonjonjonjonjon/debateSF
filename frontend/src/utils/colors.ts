@@ -21,7 +21,7 @@ export function getBlockColor(block: DebateBlock, blocks: DebateBlock[]): string
   
   if (colors.counterVariation.applyTo === 'counter' && siblings.length > 1) {
     const baseHue = colors.branch.baseHues[topIndex % colors.branch.baseHues.length];
-    return counterColor(siblingIndex, siblings.length, baseHue);
+    return counterColor(siblingIndex, siblings.length, baseHue, block.id);
   }
   
   return branchColor(block.depth, topIndex);

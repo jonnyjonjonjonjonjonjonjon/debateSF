@@ -1,4 +1,4 @@
-import designSystem from '../../../design/debate-design-system.json';
+import designSystem from './debate-design-system.json';
 
 export interface DesignTokens {
   radii: { none: number };
@@ -83,15 +83,20 @@ export function branchColor(depth: number, topIndex: number): string {
   return `hsl(${hue}, ${saturation * 100}%, ${lightness * 100}%)`;
 }
 
-export function counterColor(i: number, sibCount: number, baseHue: number): string {
+export function counterColor(i: number, sibCount: number, baseHue: number, blockId: string): string {
   const { goldenAngle, hueSpread, sBoostMax, lJitterAmp } = colors.counterVariation;
   
   const hueOffset = (i * goldenAngle) % 360;
   const spreadAmount = (hueSpread * (i / Math.max(1, sibCount - 1))) - (hueSpread / 2);
   const finalHue = (baseHue + hueOffset + spreadAmount + 360) % 360;
   
-  const sBoost = Math.random() * sBoostMax;
-  const lJitter = (Math.random() - 0.5) * lJitterAmp;
+  // Use blockId as seed for consistent random values
+  const seed = blockId.split('').reduce((acc, char) => acc + char.charCodeAt(0), 0);
+  const pseudoRandom1 = Math.sin(seed * 9549) * 0.5 + 0.5; // [0, 1]
+  const pseudoRandom2 = Math.sin(seed * 7331) * 0.5 + 0.5; // [0, 1]
+  
+  const sBoost = pseudoRandom1 * sBoostMax;
+  const lJitter = (pseudoRandom2 - 0.5) * lJitterAmp;
   
   const saturation = Math.max(colors.branch.satStart + sBoost, colors.branch.perDepth.minSat);
   const lightness = Math.max(colors.branch.litStart + lJitter, colors.branch.perDepth.minLit);

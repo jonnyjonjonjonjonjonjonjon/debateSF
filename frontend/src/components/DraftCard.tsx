@@ -1,3 +1,4 @@
+import { useEffect, useRef } from 'react';
 import { useDebateStore } from '../store/store';
 
 interface DraftCardProps {
@@ -12,6 +13,22 @@ export function DraftCard({ onCancel }: DraftCardProps) {
     cancelDraft 
   } = useDebateStore();
   
+  const draftRef = useRef<HTMLDivElement>(null);
+  
+  // Auto-scroll to draft when it appears
+  useEffect(() => {
+    if (draft && draftRef.current) {
+      // Use setTimeout to ensure DOM is updated and layout is complete
+      setTimeout(() => {
+        draftRef.current?.scrollIntoView({ 
+          behavior: 'smooth', 
+          block: 'end',
+          inline: 'nearest'
+        });
+      }, 300);
+    }
+  }, [draft?.id]); // Only trigger when a new draft is created
+  
   if (!draft) return null;
 
   const handleCancel = () => {
@@ -23,6 +40,7 @@ export function DraftCard({ onCancel }: DraftCardProps) {
 
   return (
     <div 
+      ref={draftRef}
       className="w-full p-4 sharp-corners"
       style={{
         minHeight: 'var(--expander-min-height)',
@@ -46,13 +64,16 @@ export function DraftCard({ onCancel }: DraftCardProps) {
             confirmDraft();
           }
         }}
-        placeholder={isOpening ? 'Enter your opening statement...' : 'Enter your response...'}
+        placeholder={isOpening ? 'Enter your opening statement... (Ctrl+Enter to confirm, Esc to cancel)' : 'Enter your response... (Ctrl+Enter to confirm, Esc to cancel)'}
         aria-label={isOpening ? 'Draft opening statement' : 'Draft response'}
-        className="w-full h-32 p-2 mb-4 sharp-corners resize-none"
+        className="w-full p-2 mb-4 sharp-corners resize-none"
         style={{
           backgroundColor: 'var(--surface-color)',
           color: 'var(--text-color)',
-          border: `var(--border-width)px solid var(--border-color)`
+          border: `var(--border-width)px solid var(--border-color)`,
+          minHeight: '8rem',
+          maxHeight: '40vh',
+          height: 'auto'
         }}
         autoFocus
       />
@@ -67,7 +88,7 @@ export function DraftCard({ onCancel }: DraftCardProps) {
             color: 'var(--opening-fg)'
           }}
         >
-          Confirm
+          Confirm (Ctrl+Enter)
         </button>
         
         <button
@@ -79,7 +100,7 @@ export function DraftCard({ onCancel }: DraftCardProps) {
             border: `var(--border-width)px solid var(--border-color)`
           }}
         >
-          Cancel
+          Cancel (Esc)
         </button>
       </div>
     </div>

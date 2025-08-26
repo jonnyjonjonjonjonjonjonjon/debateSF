@@ -2,7 +2,6 @@ import { useEffect } from 'react';
 import { useDebateStore } from '../store/store';
 import { Tree } from '../components/Tree';
 import { OpeningCard } from '../components/OpeningCard';
-import { HistoryDrawer } from '../components/HistoryDrawer';
 
 export default function App() {
   const { 
@@ -10,8 +9,7 @@ export default function App() {
     loading, 
     error, 
     loadDebate, 
-    resetDebate,
-    historyOpen
+    resetDebate
   } = useDebateStore();
 
   useEffect(() => {
@@ -52,8 +50,8 @@ export default function App() {
         <div className="flex justify-between items-center">
           <div className="flex items-center gap-3">
             <h1 className="text-xl font-bold">Debate Mapper 🚀</h1>
-            <span className="text-sm text-white font-mono bg-red-500 px-2 py-1 rounded font-bold">
-              v1.2.0 - HOLISTIC EXPANSION REDESIGN!
+            <span className="text-sm text-white font-mono bg-blue-600 px-2 py-1 rounded font-bold">
+              v1.3.0 - DESIGN SYSTEM TWO-ROW!
             </span>
           </div>
           <button
@@ -86,7 +84,6 @@ export default function App() {
         )}
       </main>
 
-      {historyOpen && <HistoryDrawer />}
     </div>
   );
 }

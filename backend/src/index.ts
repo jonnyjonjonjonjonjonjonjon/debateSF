@@ -9,6 +9,7 @@ const allowedOrigins = process.env.ALLOWED_ORIGINS
   ? process.env.ALLOWED_ORIGINS.split(',').map(origin => origin.trim())
   : [
     'https://debate-sf3-ajti3sbp9-jon-hughes-projects-24330bac.vercel.app',
+    'https://debate-dzps7d911-jon-hughes-projects-24330bac.vercel.app',
     'http://localhost:5173'
   ];
 

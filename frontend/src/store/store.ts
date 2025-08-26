@@ -1,14 +1,12 @@
 import { create } from 'zustand';
 
 export type Id = string;
-export type HistoryItem = { text: string; at: string };
 export type DebateBlock = { 
   id: Id; 
   parentId: Id | null; 
   depth: number; 
   order: number; 
   text: string; 
-  history: HistoryItem[] 
 };
 export type Debate = { 
   _id: Id; 
@@ -28,7 +26,6 @@ interface DebateState {
   expandedBlockId: Id | null;
   editingBlockId: Id | null;
   draft: Draft | null;
-  historyOpen: boolean;
   loading: boolean;
   error: string | null;
   
@@ -42,10 +39,8 @@ interface DebateState {
   agreeToBlock: (blockId: Id) => void;
   updateBlock: (blockId: Id, text: string) => Promise<void>;
   deleteBlock: (blockId: Id) => Promise<void>;
-  restoreBlock: (blockId: Id, historyIndex: number) => Promise<void>;
   toggleResolved: () => Promise<void>;
   resetDebate: () => Promise<void>;
-  setHistoryOpen: (open: boolean) => void;
 }
 
 const API_BASE = import.meta.env.VITE_API_URL || 
@@ -58,7 +53,6 @@ export const useDebateStore = create<DebateState>((set, get) => ({
   expandedBlockId: null,
   editingBlockId: null,
   draft: null,
-  historyOpen: false,
   loading: false,
   error: null,
 
@@ -183,16 +177,6 @@ export const useDebateStore = create<DebateState>((set, get) => ({
     }
   },
 
-  restoreBlock: async (blockId, historyIndex) => {
-    const { debate } = get();
-    if (!debate) return;
-    
-    const block = debate.blocks.find(b => b.id === blockId);
-    if (!block || !block.history[historyIndex]) return;
-    
-    const restoredText = block.history[historyIndex].text;
-    await get().updateBlock(blockId, restoredText);
-  },
 
   toggleResolved: async () => {
     const { debate } = get();
@@ -226,15 +210,11 @@ export const useDebateStore = create<DebateState>((set, get) => ({
         expandedBlockId: null,
         editingBlockId: null,
         draft: null,
-        historyOpen: false,
-        loading: false 
+              loading: false 
       });
     } catch (error) {
       set({ error: (error as Error).message, loading: false });
     }
   },
 
-  setHistoryOpen: (open) => {
-    set({ historyOpen: open });
-  },
 }));
