@@ -13,8 +13,7 @@ export default function App() {
     loadDebate, 
     resetDebate,
     createNewDebate,
-    setShowDebateSelection,
-    loadDebates
+    setShowDebateSelection
   } = useDebateStore();
 
   useEffect(() => {
