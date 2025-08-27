@@ -6,6 +6,7 @@ export type DebateBlock = {
   parentId: Id | null; 
   depth: number; 
   order: number; 
+  staticNumber: string;
   text: string; 
 };
 export type Debate = { 

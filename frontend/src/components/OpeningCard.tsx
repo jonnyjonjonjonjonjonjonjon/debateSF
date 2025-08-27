@@ -75,9 +75,25 @@ export function OpeningCard() {
           minHeight: isExpanded ? 'var(--expander-min-height)' : 'var(--closed-card-height)',
           backgroundColor: debate.resolved ? 'var(--opening-resolved-bg)' : 'var(--opening-bg)',
           color: 'var(--opening-fg)',
-          border: `var(--border-width)px solid var(--border-color)`
+          border: `var(--border-width)px solid var(--border-color)`,
+          position: 'relative'
         }}
       >
+        <div
+          className="sharp-corners"
+          style={{
+            position: 'absolute',
+            top: 'var(--spacing-xs)',
+            left: 'var(--spacing-xs)',
+            backgroundColor: 'rgba(128, 128, 128, 0.2)',
+            color: 'var(--opening-fg)',
+            padding: '2px 6px',
+            fontSize: '0.75rem',
+            fontWeight: 'bold'
+          }}
+        >
+          {openingBlock.staticNumber || '1'}
+        </div>
         <div className="text-sm uppercase tracking-wide mb-2" 
              style={{ fontSize: 'var(--label-size)' }}>
           Opening Statement

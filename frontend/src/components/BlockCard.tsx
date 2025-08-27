@@ -34,9 +34,25 @@ export function BlockCard({ block }: BlockCardProps) {
           minHeight: 'var(--expander-min-height)',
           backgroundColor: blockColor,
           border: `var(--border-width)px solid var(--border-color)`,
-          padding: 'var(--spacing-lg)'
+          padding: 'var(--spacing-lg)',
+          position: 'relative'
         }}
       >
+        <div
+          className="sharp-corners"
+          style={{
+            position: 'absolute',
+            top: 'var(--spacing-sm)',
+            left: 'var(--spacing-sm)',
+            backgroundColor: 'rgba(128, 128, 128, 0.2)',
+            color: 'var(--text-color)',
+            padding: '2px 6px',
+            fontSize: '0.75rem',
+            fontWeight: 'bold'
+          }}
+        >
+          {block.staticNumber}
+        </div>
         <textarea
           value={editText}
           onChange={(e) => setEditText(e.target.value)}
@@ -119,9 +135,25 @@ export function BlockCard({ block }: BlockCardProps) {
         border: `var(--border-width)px solid var(--border-color)`,
         padding: 'var(--spacing-md)',
         display: 'block',
-        color: block.depth === 0 ? 'var(--opening-fg)' : 'var(--text-color)'
+        color: block.depth === 0 ? 'var(--opening-fg)' : 'var(--text-color)',
+        position: 'relative'
       }}
     >
+      <div
+        className="sharp-corners"
+        style={{
+          position: 'absolute',
+          top: 'var(--spacing-xs)',
+          left: 'var(--spacing-xs)',
+          backgroundColor: 'rgba(128, 128, 128, 0.2)',
+          color: 'var(--text-color)',
+          padding: '2px 6px',
+          fontSize: '0.75rem',
+          fontWeight: 'bold'
+        }}
+      >
+        {block.staticNumber}
+      </div>
       {!isExpanded && (
         <div 
           className={block.depth === 0 ? "text-clamp-center" : "text-clamp"}

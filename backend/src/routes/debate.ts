@@ -10,6 +10,7 @@ type DebateBlock = {
   parentId: Id | null; 
   depth: number; 
   order: number; 
+  staticNumber: string;
   text: string; 
   history: HistoryItem[] 
 };
@@ -61,6 +62,38 @@ function reindexChildren(debateId: string, parentId: Id | null) {
   });
   
   debates.set(debateId, debate);
+}
+
+function generateStaticNumber(debateId: string, parentId: Id | null): string {
+  const debate = debates.get(debateId);
+  if (!debate) return '1';
+
+  if (parentId === null) {
+    // Opening statement gets "1"
+    return '1';
+  }
+
+  const parent = debate.blocks.find(b => b.id === parentId);
+  if (!parent) return '1';
+
+  // Get all existing children of this parent
+  const siblings = debate.blocks.filter(b => b.parentId === parentId);
+  
+  // Find the highest existing number among siblings
+  let maxChildNumber = 0;
+  siblings.forEach(sibling => {
+    if (sibling.staticNumber) {
+      const parts = sibling.staticNumber.split('.');
+      const lastPart = parseInt(parts[parts.length - 1]);
+      if (!isNaN(lastPart) && lastPart > maxChildNumber) {
+        maxChildNumber = lastPart;
+      }
+    }
+  });
+
+  // Generate next number in sequence
+  const nextNumber = maxChildNumber + 1;
+  return `${parent.staticNumber}.${nextNumber}`;
 }
 
 function deleteBlockAndChildren(debateId: string, blockId: Id) {
@@ -185,11 +218,14 @@ router.post('/block', (req, res) => {
     (debate.blocks.find(b => b.id === parentId)?.depth ?? 0) + 1 : 
     0;
 
+  const staticNumber = generateStaticNumber(debate._id, parentId);
+
   const newBlock: DebateBlock = {
     id: uuidv4(),
     parentId: parentId || null,
     depth,
     order: siblings.length,
+    staticNumber,
     text,
     history: []
   };
