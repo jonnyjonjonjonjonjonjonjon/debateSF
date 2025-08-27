@@ -53,20 +53,20 @@ export default function App() {
   const rootBlocks = debate.blocks.filter(block => block.parentId === null);
 
   return (
-    <div className="min-h-screen">
-      <header className="p-4 border-b" style={{ borderColor: 'var(--border-color)' }}>
-        <div className="flex justify-between items-center">
-          <div className="flex items-center gap-3">
-            <h1 className="text-xl font-bold">Debate Mapper 🚀</h1>
-            <span className="text-sm text-white font-mono bg-orange-600 px-2 py-1 rounded font-bold">
+    <div className="min-h-screen overflow-x-hidden">
+      <header className="p-3 md:p-4 border-b" style={{ borderColor: 'var(--border-color)' }}>
+        <div className="flex flex-col gap-3 md:flex-row md:justify-between md:items-center">
+          <div className="flex items-center gap-2 md:gap-3 justify-center md:justify-start">
+            <h1 className="text-lg md:text-xl font-bold">Debate Mapper 🚀</h1>
+            <span className="text-xs md:text-sm text-white font-mono bg-orange-600 px-1 md:px-2 py-1 rounded font-bold">
               v1.6.0 - THEME SELECTOR!
             </span>
           </div>
-          <div className="flex gap-2">
+          <div className="flex gap-1 md:gap-2 justify-center md:justify-end flex-wrap">
             <ThemeSelector currentTheme={currentTheme} onThemeChange={changeTheme} />
             <button
               onClick={createNewDebate}
-              className="px-3 py-1 text-sm font-medium sharp-corners"
+              className="px-2 md:px-3 py-1 text-xs md:text-sm font-medium sharp-corners"
               style={{
                 backgroundColor: '#EFEFEF',
                 color: '#111111',
@@ -77,7 +77,7 @@ export default function App() {
             </button>
             <button
               onClick={() => setShowDebateSelection(true)}
-              className="px-3 py-1 text-sm font-medium sharp-corners"
+              className="px-2 md:px-3 py-1 text-xs md:text-sm font-medium sharp-corners"
               style={{
                 backgroundColor: '#EFEFEF',
                 color: '#111111',
@@ -88,7 +88,7 @@ export default function App() {
             </button>
             <button
               onClick={resetDebate}
-              className="px-3 py-1 text-sm font-medium sharp-corners"
+              className="px-2 md:px-3 py-1 text-xs md:text-sm font-medium sharp-corners"
               style={{
                 backgroundColor: '#EFEFEF',
                 color: '#111111',
@@ -101,7 +101,7 @@ export default function App() {
         </div>
       </header>
 
-      <main className="p-4">
+      <main className="p-3 md:p-4">
         {showDebateSelection ? (
           <DebateSelection />
         ) : rootBlocks.length === 0 ? (

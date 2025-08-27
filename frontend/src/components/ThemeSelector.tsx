@@ -56,14 +56,17 @@ export function ThemeSelector({ currentTheme, onThemeChange }: ThemeSelectorProp
     <div className="relative">
       <button
         onClick={() => setIsOpen(!isOpen)}
-        className="px-3 py-1 text-sm font-medium sharp-corners flex items-center gap-2"
+        className="px-2 md:px-3 py-1 text-xs md:text-sm font-medium sharp-corners flex items-center gap-1 md:gap-2"
         style={{
           backgroundColor: '#EFEFEF',
           color: '#111111', 
           border: `var(--border-width)px solid var(--border-color)`
         }}
       >
-        Theme: {currentThemeOption.label}
+        <span className="hidden sm:inline">Theme: </span>
+        <span className="sm:hidden">🎨 </span>
+        <span className="hidden sm:inline">{currentThemeOption.label}</span>
+        <span className="sm:hidden">{currentThemeOption.label.split(' ')[0]}</span>
         <span style={{ transform: isOpen ? 'rotate(180deg)' : 'rotate(0deg)', transition: 'transform 0.2s' }}>
           ▼
         </span>
@@ -71,11 +74,12 @@ export function ThemeSelector({ currentTheme, onThemeChange }: ThemeSelectorProp
       
       {isOpen && (
         <div
-          className="absolute top-full left-0 mt-1 sharp-corners z-10 min-w-64"
+          className="absolute top-full left-0 md:left-0 md:right-auto right-0 mt-1 sharp-corners z-10 w-screen max-w-sm md:min-w-64 md:w-auto"
           style={{
             backgroundColor: 'var(--surface-color)',
             border: `var(--border-width)px solid var(--border-color)`,
-            boxShadow: '0 4px 12px rgba(0,0,0,0.15)'
+            boxShadow: '0 4px 12px rgba(0,0,0,0.15)',
+            maxWidth: '100vw'
           }}
         >
           {themes.map((theme) => (
