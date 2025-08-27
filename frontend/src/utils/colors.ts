@@ -11,6 +11,14 @@ function parseBranchFromStaticNumber(staticNumber: string): number {
   return parseInt(parts[1]) || 1; // Return branch number, default to 1 if parsing fails
 }
 
+// Force re-render counter for theme changes
+let renderCounter = 0;
+if (typeof window !== 'undefined') {
+  window.addEventListener('theme-changed', () => {
+    renderCounter++;
+  });
+}
+
 export function getBlockColor(block: DebateBlock, blocks: DebateBlock[]): string {
   if (block.depth === 0) {
     return 'var(--opening-bg)';

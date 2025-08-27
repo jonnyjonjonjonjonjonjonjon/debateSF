@@ -1,4 +1,4 @@
-import { useRef } from 'react';
+import { useRef, useState, useEffect } from 'react';
 import { useDebateStore } from '../store/store';
 import { BlockCard } from './BlockCard';
 import { DraftCard } from './DraftCard';
@@ -11,6 +11,14 @@ interface TreeProps {
 
 export function Tree({ blockId }: TreeProps) {
   const { debate, draft, expandedBlockId, agreeToBlock, createDraft } = useDebateStore();
+  const [, forceRender] = useState(0);
+  
+  // Force re-render on theme changes
+  useEffect(() => {
+    const handleThemeChange = () => forceRender(prev => prev + 1);
+    window.addEventListener('theme-changed', handleThemeChange);
+    return () => window.removeEventListener('theme-changed', handleThemeChange);
+  }, []);
   
   if (!debate) return null;
 

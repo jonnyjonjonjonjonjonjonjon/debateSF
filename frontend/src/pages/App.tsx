@@ -3,6 +3,8 @@ import { useDebateStore } from '../store/store';
 import { Tree } from '../components/Tree';
 import { OpeningCard } from '../components/OpeningCard';
 import { DebateSelection } from '../components/DebateSelection';
+import { ThemeSelector } from '../components/ThemeSelector';
+import { useTheme } from '../hooks/useTheme';
 
 export default function App() {
   const { 
@@ -15,6 +17,8 @@ export default function App() {
     createNewDebate,
     setShowDebateSelection
   } = useDebateStore();
+  
+  const { currentTheme, changeTheme } = useTheme();
 
   useEffect(() => {
     loadDebate();
@@ -59,6 +63,7 @@ export default function App() {
             </span>
           </div>
           <div className="flex gap-2">
+            <ThemeSelector currentTheme={currentTheme} onThemeChange={changeTheme} />
             <button
               onClick={createNewDebate}
               className="px-3 py-1 text-sm font-medium sharp-corners"

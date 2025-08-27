@@ -72,7 +72,9 @@ export function initializeCSSVariables() {
 }
 
 export function branchColor(depth: number, colorFamilyIndex: number): string {
-  const baseHue = colors.branch.baseHues[colorFamilyIndex % colors.branch.baseHues.length];
+  // Use dynamic theme hues if available, fallback to design system
+  const currentHues = (window as any).currentThemeHues || colors.branch.baseHues;
+  const baseHue = currentHues[colorFamilyIndex % currentHues.length];
   
   // Keep hue within the same family (small variations only for depth 1+)
   const hueVariation = depth > 0 ? ((depth - 1) % 3) * 3 - 3 : 0; // -3, 0, +3 degrees max
