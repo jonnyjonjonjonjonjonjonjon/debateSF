@@ -23,10 +23,7 @@ export function BlockCard({ block }: BlockCardProps) {
   
   // Force re-render on theme changes
   useEffect(() => {
-    const handleThemeChange = () => {
-      console.log('BlockCard received theme change event');
-      forceRender(prev => prev + 1);
-    };
+    const handleThemeChange = () => forceRender(prev => prev + 1);
     window.addEventListener('theme-changed', handleThemeChange);
     return () => window.removeEventListener('theme-changed', handleThemeChange);
   }, []);

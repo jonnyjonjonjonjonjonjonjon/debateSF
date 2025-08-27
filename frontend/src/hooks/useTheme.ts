@@ -24,14 +24,11 @@ export function useTheme() {
   useEffect(() => {
     const baseHues = themeConfigs[currentTheme];
     
-    console.log('Theme changing to:', currentTheme, 'with hues:', baseHues);
-    
     // Store the base hues for the color calculation functions to use
     (window as any).currentThemeHues = baseHues;
     
     // Force a re-render by triggering a custom event
     window.dispatchEvent(new CustomEvent('theme-changed', { detail: { theme: currentTheme, baseHues } }));
-    console.log('Theme change event dispatched');
   }, [currentTheme]);
 
   const changeTheme = (theme: ThemeName) => {

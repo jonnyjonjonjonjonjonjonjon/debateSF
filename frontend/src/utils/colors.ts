@@ -34,7 +34,8 @@ export function getBlockColor(block: DebateBlock, blocks: DebateBlock[]): string
     .findIndex(b => b.id === block.id);
   
   if (colors.counterVariation.applyTo === 'counter' && siblings.length > 1) {
-    const baseHue = colors.branch.baseHues[colorFamilyIndex];
+    const currentHues = (window as any).currentThemeHues || colors.branch.baseHues;
+    const baseHue = currentHues[colorFamilyIndex];
     return counterColor(siblingIndex, siblings.length, baseHue, block.id);
   }
   
