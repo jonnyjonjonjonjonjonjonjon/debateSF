@@ -42,35 +42,35 @@
     },
     "danger": "#EF4444",
     "opening": {
-      "bg": "#111111",
+      "bg": "#BE185D",
       "fg": "#FFFFFF",
-      "resolvedBg": "#1F9D55"
+      "resolvedBg": "#0F766E"
     },
     "branch": {
       "baseHues": [
-        14,
-        42,
-        170,
-        210,
-        260,
-        310
+        270,
+        220,
+        40,
+        190,
+        330,
+        60
       ],
-      "satStart": 0.6,
-      "litStart": 0.9,
+      "satStart": 0.7,
+      "litStart": 0.85,
       "perDepth": {
-        "satStep": -0.05,
-        "litStep": -0.06,
-        "minSat": 0.35,
-        "minLit": 0.35
+        "satStep": -0.08,
+        "litStep": -0.08,
+        "minSat": 0.30,
+        "minLit": 0.30
       }
     },
     "counterVariation": {
       "applyTo": "counter",
       "strategy": "hue-near-branch",
       "goldenAngle": 137.507764,
-      "hueSpread": 30,
-      "sBoostMax": 0.1,
-      "lJitterAmp": 0.06
+      "hueSpread": 12,
+      "sBoostMax": 0.08,
+      "lJitterAmp": 0.04
     }
   },
   "components": {
