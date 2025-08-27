@@ -55,7 +55,7 @@ export default function App() {
           <div className="flex items-center gap-3">
             <h1 className="text-xl font-bold">Debate Mapper 🚀</h1>
             <span className="text-sm text-white font-mono bg-orange-600 px-2 py-1 rounded font-bold">
-              v1.4.0 - MULTIPLE DEBATES!
+              v1.5.0 - STATIC BLOCK NUMBERING!
             </span>
           </div>
           <div className="flex gap-2">
