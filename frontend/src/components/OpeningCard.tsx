@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useDebateStore } from '../store/store';
 import { DraftCard } from './DraftCard';
 
@@ -12,6 +12,14 @@ export function OpeningCard() {
   } = useDebateStore();
   
   const [isCreatingOpening, setIsCreatingOpening] = useState(false);
+  const [, forceRender] = useState(0);
+  
+  // Force re-render on theme changes
+  useEffect(() => {
+    const handleThemeChange = () => forceRender(prev => prev + 1);
+    window.addEventListener('theme-changed', handleThemeChange);
+    return () => window.removeEventListener('theme-changed', handleThemeChange);
+  }, []);
 
   if (!debate) return null;
 

@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useDebateStore, type DebateBlock } from '../store/store';
 import { getBlockColor } from '../utils/colors';
 import { RichText } from './RichText';
@@ -19,6 +19,17 @@ export function BlockCard({ block }: BlockCardProps) {
   } = useDebateStore();
   
   const [editText, setEditText] = useState(block.text);
+  const [, forceRender] = useState(0);
+  
+  // Force re-render on theme changes
+  useEffect(() => {
+    const handleThemeChange = () => {
+      console.log('BlockCard received theme change event');
+      forceRender(prev => prev + 1);
+    };
+    window.addEventListener('theme-changed', handleThemeChange);
+    return () => window.removeEventListener('theme-changed', handleThemeChange);
+  }, []);
 
   if (!debate) return null;
 
