@@ -89,7 +89,7 @@ export function branchColor(depth: number, colorFamilyIndex: number): string {
   return `hsl(${finalHue}, ${saturation * 100}%, ${lightness * 100}%)`;
 }
 
-export function counterColor(i: number, sibCount: number, baseHue: number, blockId: string): string {
+export function counterColor(i: number, _sibCount: number, baseHue: number, blockId: string): string {
   const { sBoostMax, lJitterAmp } = colors.counterVariation;
   
   // Keep hue variations small to stay within color family (max ±5 degrees)

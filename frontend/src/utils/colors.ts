@@ -42,12 +42,3 @@ export function getBlockColor(block: DebateBlock, blocks: DebateBlock[]): string
   return branchColor(block.depth, colorFamilyIndex);
 }
 
-function getTopLevelAncestor(block: DebateBlock, blocks: DebateBlock[]): DebateBlock | null {
-  if (block.depth === 1) return block;
-  if (!block.parentId) return null;
-  
-  const parent = blocks.find(b => b.id === block.parentId);
-  if (!parent) return null;
-  
-  return getTopLevelAncestor(parent, blocks);
-}
