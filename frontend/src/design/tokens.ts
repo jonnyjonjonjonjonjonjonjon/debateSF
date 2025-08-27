@@ -71,8 +71,12 @@ export function initializeCSSVariables() {
   root.style.setProperty('--text-clamp-lines', layout.textClampLines.toString());
 }
 
-export function branchColor(depth: number, topIndex: number): string {
-  const hue = colors.branch.baseHues[topIndex % colors.branch.baseHues.length];
+export function branchColor(depth: number, colorFamilyIndex: number): string {
+  const baseHue = colors.branch.baseHues[colorFamilyIndex % colors.branch.baseHues.length];
+  
+  // Keep hue within the same family (small variations only for depth 1+)
+  const hueVariation = depth > 0 ? ((depth - 1) % 3) * 3 - 3 : 0; // -3, 0, +3 degrees max
+  const finalHue = (baseHue + hueVariation + 360) % 360;
   
   let saturation = colors.branch.satStart + (depth * colors.branch.perDepth.satStep);
   let lightness = colors.branch.litStart + (depth * colors.branch.perDepth.litStep);
@@ -80,15 +84,15 @@ export function branchColor(depth: number, topIndex: number): string {
   saturation = Math.max(saturation, colors.branch.perDepth.minSat);
   lightness = Math.max(lightness, colors.branch.perDepth.minLit);
   
-  return `hsl(${hue}, ${saturation * 100}%, ${lightness * 100}%)`;
+  return `hsl(${finalHue}, ${saturation * 100}%, ${lightness * 100}%)`;
 }
 
 export function counterColor(i: number, sibCount: number, baseHue: number, blockId: string): string {
-  const { goldenAngle, hueSpread, sBoostMax, lJitterAmp } = colors.counterVariation;
+  const { sBoostMax, lJitterAmp } = colors.counterVariation;
   
-  const hueOffset = (i * goldenAngle) % 360;
-  const spreadAmount = (hueSpread * (i / Math.max(1, sibCount - 1))) - (hueSpread / 2);
-  const finalHue = (baseHue + hueOffset + spreadAmount + 360) % 360;
+  // Keep hue variations small to stay within color family (max ±5 degrees)
+  const hueVariation = (i * 5) % 11 - 5; // -5 to +5 degrees
+  const finalHue = (baseHue + hueVariation + 360) % 360;
   
   // Use blockId as seed for consistent random values
   const seed = blockId.split('').reduce((acc, char) => acc + char.charCodeAt(0), 0);
