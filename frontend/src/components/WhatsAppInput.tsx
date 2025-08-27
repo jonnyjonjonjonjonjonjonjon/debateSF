@@ -9,6 +9,8 @@ interface WhatsAppInputProps {
   style?: React.CSSProperties;
   autoFocus?: boolean;
   'aria-label'?: string;
+  maxLength?: number;
+  showCharacterCount?: boolean;
 }
 
 export function WhatsAppInput({ 
@@ -19,20 +21,28 @@ export function WhatsAppInput({
   className = '', 
   style = {},
   autoFocus = false,
-  'aria-label': ariaLabel 
+  'aria-label': ariaLabel,
+  maxLength,
+  showCharacterCount = false
 }: WhatsAppInputProps) {
   const textareaRef = useRef<HTMLTextAreaElement>(null);
   const [showHint, setShowHint] = useState(false);
 
   // Handle input changes
   const handleInput = useCallback((e: React.ChangeEvent<HTMLTextAreaElement>) => {
-    const newValue = e.target.value;
+    let newValue = e.target.value;
+    
+    // Enforce character limit if specified
+    if (maxLength && newValue.length > maxLength) {
+      newValue = newValue.substring(0, maxLength);
+    }
+    
     onChange(newValue);
     
     // Show hint when typing formatting characters or list markers
     const hasFormatting = /[*_~`]/.test(newValue) || /^\s*[-*]\s/.test(newValue) || /^\s*\d+\.\s/.test(newValue);
     setShowHint(hasFormatting);
-  }, [onChange]);
+  }, [onChange, maxLength]);
 
   // Handle key events
   const handleKeyDown = useCallback((e: React.KeyboardEvent<HTMLTextAreaElement>) => {
@@ -263,6 +273,9 @@ export function WhatsAppInput({
     }
   }, [autoFocus]);
 
+  const isOverLimit = maxLength && value.length > maxLength;
+  const isNearLimit = maxLength && value.length > maxLength * 0.8;
+
   return (
     <div style={{ position: 'relative' }}>
       <textarea
@@ -277,9 +290,28 @@ export function WhatsAppInput({
           ...style,
           fontFamily: 'inherit',
           lineHeight: '1.4',
-          borderColor: showHint ? '#007AFF' : style.borderColor
+          borderColor: isOverLimit ? '#FF4444' : showHint ? '#007AFF' : style.borderColor
         }}
       />
+      
+      {showCharacterCount && maxLength && (
+        <div
+          style={{
+            position: 'absolute',
+            bottom: '4px',
+            right: '8px',
+            backgroundColor: 'rgba(255, 255, 255, 0.9)',
+            color: isOverLimit ? '#FF4444' : isNearLimit ? '#FF8800' : '#666666',
+            padding: '2px 6px',
+            borderRadius: '4px',
+            fontSize: '11px',
+            fontWeight: '500',
+            pointerEvents: 'none'
+          }}
+        >
+          {value.length}/{maxLength}
+        </div>
+      )}
       
       {showHint && (
         <div

@@ -39,6 +39,8 @@ export function DraftCard({ onCancel }: DraftCardProps) {
   };
 
   const isOpening = draft.parentId === null;
+  const isObjection = !isOpening;
+  const OBJECTION_CHAR_LIMIT = 300;
 
   return (
     <div 
@@ -62,7 +64,7 @@ export function DraftCard({ onCancel }: DraftCardProps) {
         onKeyDown={(e) => {
           if (e.key === 'Escape') {
             handleCancel();
-          } else if (e.key === 'Enter' && e.ctrlKey && draft.text.trim()) {
+          } else if (e.key === 'Enter' && e.ctrlKey && draft.text.trim() && (!isObjection || draft.text.length <= OBJECTION_CHAR_LIMIT)) {
             confirmDraft();
           }
         }}
@@ -80,13 +82,15 @@ export function DraftCard({ onCancel }: DraftCardProps) {
           height: 'auto',
           fontSize: '16px' // Prevent zoom on iOS
         }}
+        maxLength={isObjection ? OBJECTION_CHAR_LIMIT : undefined}
+        showCharacterCount={isObjection}
         autoFocus
       />
       
       <div className="flex gap-2">
         <button
           onClick={confirmDraft}
-          disabled={!draft.text.trim()}
+          disabled={!draft.text.trim() || (isObjection && draft.text.length > OBJECTION_CHAR_LIMIT)}
           className="px-4 py-2 text-sm font-medium sharp-corners disabled:opacity-50"
           style={{
             backgroundColor: 'var(--opening-bg)',

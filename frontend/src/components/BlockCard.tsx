@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react';
 import { useDebateStore, type DebateBlock } from '../store/store';
 import { getBlockColor } from '../utils/colors';
 import { RichText } from './RichText';
+import { WhatsAppInput } from './WhatsAppInput';
 
 interface BlockCardProps {
   block: DebateBlock;
@@ -33,6 +34,8 @@ export function BlockCard({ block }: BlockCardProps) {
   const isExpanded = expandedBlockId === block.id;
   const isEditing = editingBlockId === block.id;
   const blockColor = getBlockColor(block, debate.blocks);
+  const isObjection = block.depth > 0;
+  const OBJECTION_CHAR_LIMIT = 300;
 
   if (isEditing) {
     return (
@@ -61,16 +64,19 @@ export function BlockCard({ block }: BlockCardProps) {
         >
           {block.staticNumber}
         </div>
-        <textarea
+        <WhatsAppInput
           value={editText}
-          onChange={(e) => setEditText(e.target.value)}
-          className="w-full h-32 mb-4 sharp-corners resize-none"
+          onChange={setEditText}
+          className="w-full mb-4 sharp-corners resize-none"
           style={{
             backgroundColor: 'var(--surface-color)',
             color: 'var(--text-color)',
             border: `var(--border-width)px solid var(--border-color)`,
-            padding: 'var(--spacing-sm)'
+            padding: 'var(--spacing-sm)',
+            minHeight: '8rem'
           }}
+          maxLength={isObjection ? OBJECTION_CHAR_LIMIT : undefined}
+          showCharacterCount={isObjection}
           autoFocus
         />
         
@@ -79,7 +85,8 @@ export function BlockCard({ block }: BlockCardProps) {
             onClick={() => {
               updateBlock(block.id, editText);
             }}
-            className="text-sm font-medium sharp-corners"
+            disabled={!editText.trim() || (isObjection && editText.length > OBJECTION_CHAR_LIMIT)}
+            className="text-sm font-medium sharp-corners disabled:opacity-50"
             style={{
               backgroundColor: '#111111',
               color: '#FFFFFF',

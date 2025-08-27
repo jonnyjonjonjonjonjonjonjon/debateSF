@@ -218,6 +218,14 @@ router.post('/block', (req, res) => {
     (debate.blocks.find(b => b.id === parentId)?.depth ?? 0) + 1 : 
     0;
 
+  // Enforce 300-character limit for objections (depth > 0)
+  const OBJECTION_CHAR_LIMIT = 300;
+  if (depth > 0 && text.length > OBJECTION_CHAR_LIMIT) {
+    return res.status(400).json({ 
+      error: `Objections must be ${OBJECTION_CHAR_LIMIT} characters or less (current: ${text.length})` 
+    });
+  }
+
   const staticNumber = generateStaticNumber(debate._id, parentId);
 
   const newBlock: DebateBlock = {
@@ -250,6 +258,14 @@ router.patch('/block/:id', (req, res) => {
   }
 
   if (text && typeof text === 'string' && text !== block.text) {
+    // Enforce 300-character limit for objections (depth > 0)
+    const OBJECTION_CHAR_LIMIT = 300;
+    if (block.depth > 0 && text.length > OBJECTION_CHAR_LIMIT) {
+      return res.status(400).json({ 
+        error: `Objections must be ${OBJECTION_CHAR_LIMIT} characters or less (current: ${text.length})` 
+      });
+    }
+    
     block.history.push({
       text: block.text,
       at: new Date().toISOString()
