@@ -17,9 +17,7 @@ export function Tree({ blockId }: TreeProps) {
     showDisabledBlocks,
     agreeToBlock, 
     createDraft, 
-    setExpanded,
     disableBlock,
-    restoreBlock,
     toggleShowDisabledBlocks 
   } = useDebateStore();
   const [, forceRender] = useState(0);

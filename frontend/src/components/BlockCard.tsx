@@ -16,7 +16,6 @@ export function BlockCard({ block }: BlockCardProps) {
     setExpanded, 
     updateBlock,
     deleteBlock,
-    disableBlock,
     restoreBlock,
     setEditing
   } = useDebateStore();
