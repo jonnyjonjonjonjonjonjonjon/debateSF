@@ -6,9 +6,11 @@ import { WhatsAppInput } from './WhatsAppInput';
 
 interface BlockCardProps {
   block: DebateBlock;
+  hasDisabledChildren?: boolean;
+  disabledChildrenCount?: number;
 }
 
-export function BlockCard({ block }: BlockCardProps) {
+export function BlockCard({ block, hasDisabledChildren = false, disabledChildrenCount = 0 }: BlockCardProps) {
   const { 
     debate,
     expandedBlockId, 
@@ -257,7 +259,9 @@ export function BlockCard({ block }: BlockCardProps) {
         height: 'var(--closed-card-height)',
         minHeight: 'var(--closed-card-height)',
         backgroundColor: blockColor,
-        border: `var(--border-width)px solid var(--border-color)`,
+        border: hasDisabledChildren && !isExpanded 
+          ? `var(--border-width)px dashed var(--border-color)` 
+          : `var(--border-width)px solid var(--border-color)`,
         padding: 'var(--spacing-md)',
         display: 'block',
         color: block.depth === 0 ? 'var(--opening-fg)' : 'var(--text-color)',
@@ -279,6 +283,25 @@ export function BlockCard({ block }: BlockCardProps) {
       >
         {block.staticNumber}
       </div>
+      
+      {/* Hidden children indicator badge */}
+      {hasDisabledChildren && !isExpanded && (
+        <div
+          className="hidden-children-badge sharp-corners"
+          style={{
+            position: 'absolute',
+            bottom: 'var(--spacing-xs)',
+            right: 'var(--spacing-xs)',
+            backgroundColor: 'rgba(255, 149, 0, 0.8)',
+            color: '#FFFFFF',
+            padding: '2px 6px',
+            fontSize: '0.7rem',
+            fontWeight: 'bold'
+          }}
+        >
+          🔒{disabledChildrenCount}
+        </div>
+      )}
       {!isExpanded && (
         <div 
           className={block.depth === 0 ? "text-clamp-center" : "text-clamp"}

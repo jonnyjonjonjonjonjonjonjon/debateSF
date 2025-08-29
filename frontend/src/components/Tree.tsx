@@ -81,7 +81,11 @@ export function Tree({ blockId }: TreeProps) {
   return (
     <div className="w-full">
       {/* Top row - uniform height, shows text when closed, empty when open */}
-      <BlockCard block={block} />
+      <BlockCard 
+        block={block} 
+        hasDisabledChildren={hasDisabledChildren}
+        disabledChildrenCount={disabledChildren.length}
+      />
       
       {/* Bottom row - only appears when this block is expanded */}
       {isExpanded && (
