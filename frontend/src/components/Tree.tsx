@@ -10,7 +10,7 @@ interface TreeProps {
 }
 
 export function Tree({ blockId }: TreeProps) {
-  const { debate, draft, expandedBlockId, agreeToBlock, createDraft } = useDebateStore();
+  const { debate, draft, expandedBlockId, agreeToBlock, createDraft, setExpanded } = useDebateStore();
   const [, forceRender] = useState(0);
   
   // Force re-render on theme changes
@@ -116,6 +116,21 @@ export function Tree({ blockId }: TreeProps) {
               </div>
             </div>
           )}
+        </div>
+      )}
+      
+      {/* Helper message for opening statement when closed and has no children */}
+      {!isExpanded && block.depth === 0 && totalItems === 0 && !showDraft && (
+        <div 
+          className="w-full text-center text-sm"
+          style={{ 
+            color: 'var(--text-color)', 
+            opacity: 0.7,
+            padding: 'var(--spacing-md)',
+            fontStyle: 'italic'
+          }}
+        >
+          Tap the statement block to edit or add a challenge
         </div>
       )}
       
