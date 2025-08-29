@@ -103,7 +103,10 @@ export function DebateSelection() {
                 borderWidth: 'var(--border-width)px'
               }}
             >
-              <div className="flex-1 cursor-pointer" onClick={() => selectDebate(debate._id)}>
+              <div className="flex-1 cursor-pointer" onClick={() => {
+                selectDebate(debate._id);
+                window.history.pushState(null, '', `/debate/${debate._id}`);
+              }}>
                 <div className="font-medium mb-1">
                   {debate.resolved && <span className="text-green-600 mr-1">✓</span>}
                   Debate from {formatDate(debate.updatedAt)}

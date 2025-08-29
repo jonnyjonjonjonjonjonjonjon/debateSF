@@ -8,6 +8,8 @@ export type DebateBlock = {
   order: number; 
   staticNumber: string;
   text: string; 
+  disabled?: boolean;
+  disabledAt?: string;
 };
 export type Debate = { 
   _id: Id; 
@@ -32,6 +34,7 @@ interface DebateState {
   loading: boolean;
   error: string | null;
   showDebateSelection: boolean;
+  showDisabledBlocks: Set<Id>; // Track which parent blocks should show their disabled children
   
   loadDebate: () => Promise<void>;
   loadDebates: () => Promise<void>;
@@ -48,6 +51,9 @@ interface DebateState {
   agreeToBlock: (blockId: Id) => void;
   updateBlock: (blockId: Id, text: string) => Promise<void>;
   deleteBlock: (blockId: Id) => Promise<void>;
+  disableBlock: (blockId: Id) => Promise<void>;
+  restoreBlock: (blockId: Id) => Promise<void>;
+  toggleShowDisabledBlocks: (parentId: Id) => void;
   toggleResolved: () => Promise<void>;
   resetDebate: () => Promise<void>;
 }
@@ -67,6 +73,7 @@ export const useDebateStore = create<DebateState>((set, get) => ({
   loading: false,
   error: null,
   showDebateSelection: false,
+  showDisabledBlocks: new Set(),
 
   loadDebates: async () => {
     set({ loading: true, error: null });
@@ -103,8 +110,11 @@ export const useDebateStore = create<DebateState>((set, get) => ({
         expandedBlockId: null,
         editingBlockId: null,
         draft: null,
+        showDisabledBlocks: new Set(),
         loading: false 
       });
+      // Navigate to the new debate
+      window.history.pushState(null, '', `/debate/${debate._id}`);
     } catch (error) {
       console.error('Error creating debate:', error);
       set({ 
@@ -129,6 +139,7 @@ export const useDebateStore = create<DebateState>((set, get) => ({
         editingBlockId: null,
         draft: null,
         showDebateSelection: false,
+        showDisabledBlocks: new Set(),
         loading: false 
       });
     } catch (error) {
@@ -320,10 +331,13 @@ export const useDebateStore = create<DebateState>((set, get) => ({
   },
 
   resetDebate: async () => {
+    const { currentDebateId } = get();
+    if (!currentDebateId) return;
+    
     set({ loading: true, error: null });
     try {
-      const response = await fetch(`${API_BASE}/debate`, {
-        method: 'DELETE',
+      const response = await fetch(`${API_BASE}/debate/${currentDebateId}/reset`, {
+        method: 'POST',
       });
       
       if (!response.ok) throw new Error('Failed to reset debate');
@@ -334,11 +348,60 @@ export const useDebateStore = create<DebateState>((set, get) => ({
         expandedBlockId: null,
         editingBlockId: null,
         draft: null,
+        showDisabledBlocks: new Set(),
         loading: false 
       });
     } catch (error) {
       set({ error: (error as Error).message, loading: false });
     }
+  },
+
+  disableBlock: async (blockId) => {
+    set({ loading: true, error: null });
+    try {
+      const response = await fetch(`${API_BASE}/block/${blockId}/disable`, {
+        method: 'PATCH',
+      });
+      
+      if (!response.ok) throw new Error('Failed to disable block');
+      const debate = await response.json();
+      set({ 
+        debate, 
+        editingBlockId: null, 
+        expandedBlockId: null,
+        loading: false 
+      });
+    } catch (error) {
+      set({ error: (error as Error).message, loading: false });
+    }
+  },
+
+  restoreBlock: async (blockId) => {
+    set({ loading: true, error: null });
+    try {
+      const response = await fetch(`${API_BASE}/block/${blockId}/restore`, {
+        method: 'PATCH',
+      });
+      
+      if (!response.ok) throw new Error('Failed to restore block');
+      const debate = await response.json();
+      set({ debate, loading: false });
+    } catch (error) {
+      set({ error: (error as Error).message, loading: false });
+    }
+  },
+
+  toggleShowDisabledBlocks: (parentId) => {
+    const { showDisabledBlocks } = get();
+    const newSet = new Set(showDisabledBlocks);
+    
+    if (newSet.has(parentId)) {
+      newSet.delete(parentId);
+    } else {
+      newSet.add(parentId);
+    }
+    
+    set({ showDisabledBlocks: newSet });
   },
 
 }));
