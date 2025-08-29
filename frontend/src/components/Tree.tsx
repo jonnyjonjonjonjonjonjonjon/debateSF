@@ -10,7 +10,18 @@ interface TreeProps {
 }
 
 export function Tree({ blockId }: TreeProps) {
-  const { debate, draft, expandedBlockId, agreeToBlock, createDraft, setExpanded } = useDebateStore();
+  const { 
+    debate, 
+    draft, 
+    expandedBlockId, 
+    showDisabledBlocks,
+    agreeToBlock, 
+    createDraft, 
+    setExpanded,
+    disableBlock,
+    restoreBlock,
+    toggleShowDisabledBlocks 
+  } = useDebateStore();
   const [, forceRender] = useState(0);
   
   // Force re-render on theme changes
@@ -25,14 +36,51 @@ export function Tree({ blockId }: TreeProps) {
   const block = debate.blocks.find(b => b.id === blockId);
   if (!block) return null;
 
-  const children = debate.blocks
+  // Check if this block is disabled and should be hidden
+  if (block.disabled) {
+    // Only render if an ancestor has explicitly requested to show disabled blocks
+    const ancestorRequestingDisabled = (function checkAncestorShowingDisabled(currentBlock: any): boolean {
+      if (!currentBlock.parentId) return false;
+      if (showDisabledBlocks.has(currentBlock.parentId)) return true;
+      const parent = debate.blocks.find(b => b.id === currentBlock.parentId);
+      return parent ? checkAncestorShowingDisabled(parent) : false;
+    })(block);
+    
+    if (!ancestorRequestingDisabled) {
+      return null; // Hide this disabled block
+    }
+  }
+
+  const allChildren = debate.blocks
     .filter(b => b.parentId === blockId)
     .sort((a, b) => a.order - b.order);
+  
+  // Split children into enabled and disabled
+  const enabledChildren = allChildren.filter(b => !b.disabled);
+  const disabledChildren = allChildren.filter(b => b.disabled);
+  
+  // Determine which children to show based on showDisabledBlocks state
+  const shouldShowDisabledDirectly = showDisabledBlocks.has(blockId);
+  
+  // Check if any ancestor is showing disabled blocks (for cascading disabled display)
+  const ancestorShowingDisabled = (function checkAncestorShowingDisabled(currentBlock: any): boolean {
+    if (!currentBlock.parentId) return false;
+    if (showDisabledBlocks.has(currentBlock.parentId)) return true;
+    const parent = debate.blocks.find(b => b.id === currentBlock.parentId);
+    return parent ? checkAncestorShowingDisabled(parent) : false;
+  })(block);
+  
+  // Show disabled children only if explicitly requested for this block or cascaded from ancestor
+  const shouldShowDisabled = shouldShowDisabledDirectly || ancestorShowingDisabled;
+  const childrenToShow = shouldShowDisabled ? allChildren : enabledChildren;
 
   const showDraft = draft && draft.parentId === blockId;
   const isExpanded = expandedBlockId === block.id;
-  const totalItems = children.length + (showDraft ? 1 : 0);
+  const totalItems = childrenToShow.length + (showDraft ? 1 : 0);
   const blockColor = getBlockColor(block, debate.blocks);
+  
+  // Check if this block has any disabled children to show indicator
+  const hasDisabledChildren = disabledChildren.length > 0;
   
   const expandedRef = useRef<HTMLDivElement>(null);
 
@@ -60,49 +108,84 @@ export function Tree({ blockId }: TreeProps) {
               <RichText text={block.text} />
             </div>
             
-            {!showDraft && (
-              <div className="flex" style={{ gap: 'var(--spacing-sm)' }}>
+            <div className="flex" style={{ gap: 'var(--spacing-sm)', alignItems: 'center' }}>
+              {!showDraft && (
+                <>
+                  <button
+                    onClick={() => agreeToBlock(block.id)}
+                    className="text-sm font-medium sharp-corners"
+                    style={{
+                      backgroundColor: '#111111',
+                      color: '#FFFFFF',
+                      padding: 'var(--spacing-sm) var(--spacing-md)',
+                      border: 'none'
+                    }}
+                  >
+                    Edit
+                  </button>
+                  
+                  <button
+                    onClick={() => createDraft(block.id, '')}
+                    className="text-sm font-medium sharp-corners"
+                    style={{
+                      backgroundColor: '#EFEFEF',
+                      color: '#111111',
+                      border: `var(--border-width)px solid var(--border-color)`,
+                      padding: 'var(--spacing-sm) var(--spacing-md)'
+                    }}
+                  >
+                    Challenge
+                  </button>
+                  
+                  {/* Only show Disable button for objections (depth > 0), not opening statement */}
+                  {block.depth > 0 && (
+                    <button
+                      onClick={() => disableBlock(block.id)}
+                      className="text-sm font-medium sharp-corners"
+                      style={{
+                        backgroundColor: '#FF9500',
+                        color: 'white',
+                        padding: 'var(--spacing-sm) var(--spacing-md)',
+                        border: 'none'
+                      }}
+                    >
+                      Disable
+                    </button>
+                  )}
+                </>
+              )}
+              
+              {/* Disabled children indicator */}
+              {hasDisabledChildren && (
                 <button
-                  onClick={() => agreeToBlock(block.id)}
+                  onClick={() => toggleShowDisabledBlocks(block.id)}
                   className="text-sm font-medium sharp-corners"
                   style={{
-                    backgroundColor: '#111111',
-                    color: '#FFFFFF',
-                    padding: 'var(--spacing-sm) var(--spacing-md)',
-                    border: 'none'
-                  }}
-                >
-                  Edit
-                </button>
-                
-                <button
-                  onClick={() => createDraft(block.id, '')}
-                  className="text-sm font-medium sharp-corners"
-                  style={{
-                    backgroundColor: '#EFEFEF',
-                    color: '#111111',
+                    backgroundColor: shouldShowDisabled ? '#666666' : '#CCCCCC',
+                    color: shouldShowDisabled ? '#FFFFFF' : '#333333',
                     border: `var(--border-width)px solid var(--border-color)`,
-                    padding: 'var(--spacing-sm) var(--spacing-md)'
+                    padding: 'var(--spacing-sm) var(--spacing-md)',
+                    marginLeft: 'auto'
                   }}
                 >
-                  Challenge
+                  {shouldShowDisabled ? 'Hide' : 'Show'} {disabledChildren.length} disabled
                 </button>
-              </div>
-            )}
+              )}
+            </div>
           </div>
           
           {/* Children of expanded block render below */}
-          {(children.length > 0 || showDraft) && (
+          {(childrenToShow.length > 0 || showDraft) && (
             <div className="w-full">
               <div 
                 className="grid w-full mobile-grid"
                 style={{
-                  gridTemplateColumns: `repeat(${children.length + (showDraft ? 1 : 0)}, minmax(0, 1fr))`,
-                  '--mobile-cols': children.length + (showDraft ? 1 : 0),
+                  gridTemplateColumns: `repeat(${childrenToShow.length + (showDraft ? 1 : 0)}, minmax(0, 1fr))`,
+                  '--mobile-cols': childrenToShow.length + (showDraft ? 1 : 0),
                   gap: 0
                 } as React.CSSProperties}
               >
-                {children.map((child) => (
+                {childrenToShow.map((child) => (
                   <div key={child.id} className="w-full">
                     <Tree blockId={child.id} />
                   </div>
@@ -145,7 +228,7 @@ export function Tree({ blockId }: TreeProps) {
               gap: 0
             } as React.CSSProperties}
           >
-            {children.map((child) => (
+            {childrenToShow.map((child) => (
               <div key={child.id} className="w-full">
                 <Tree blockId={child.id} />
               </div>

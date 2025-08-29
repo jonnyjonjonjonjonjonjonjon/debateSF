@@ -12,7 +12,9 @@ type DebateBlock = {
   order: number; 
   staticNumber: string;
   text: string; 
-  history: HistoryItem[] 
+  history: HistoryItem[];
+  disabled?: boolean;
+  disabledAt?: string;
 };
 type Debate = { 
   _id: Id; 
@@ -109,6 +111,50 @@ function deleteBlockAndChildren(debateId: string, blockId: Id) {
   debate.blocks = debate.blocks.filter(b => b.id !== blockId);
   
   reindexChildren(debateId, block.parentId);
+  debates.set(debateId, debate);
+}
+
+function disableBlockAndChildren(debateId: string, blockId: Id) {
+  const debate = debates.get(debateId);
+  if (!debate) return;
+  
+  const block = debate.blocks.find(b => b.id === blockId);
+  if (!block) return;
+
+  // Disable this block
+  block.disabled = true;
+  block.disabledAt = new Date().toISOString();
+
+  // Disable all children recursively
+  const children = debate.blocks.filter(b => b.parentId === blockId);
+  children.forEach(child => disableBlockAndChildren(debateId, child.id));
+  
+  debates.set(debateId, debate);
+}
+
+function restoreBlockAndChildren(debateId: string, blockId: Id) {
+  const debate = debates.get(debateId);
+  if (!debate) return;
+  
+  const block = debate.blocks.find(b => b.id === blockId);
+  if (!block) return;
+
+  // Check if parent is disabled - if so, cannot restore this block
+  if (block.parentId) {
+    const parent = debate.blocks.find(b => b.id === block.parentId);
+    if (parent && parent.disabled) {
+      throw new Error('Cannot restore block while parent is disabled');
+    }
+  }
+
+  // Restore this block
+  block.disabled = false;
+  delete block.disabledAt;
+
+  // Restore all children recursively
+  const children = debate.blocks.filter(b => b.parentId === blockId);
+  children.forEach(child => restoreBlockAndChildren(debateId, child.id));
+  
   debates.set(debateId, debate);
 }
 
@@ -305,6 +351,51 @@ router.delete('/block/:id', (req, res) => {
 
   const updatedDebate = updateDebate(debate._id);
   res.json(updatedDebate);
+});
+
+router.patch('/block/:id/disable', (req, res) => {
+  const { id } = req.params;
+  
+  const debate = getCurrentDebate();
+  if (!debate) {
+    return res.status(404).json({ error: 'No current debate' });
+  }
+  
+  const block = debate.blocks.find(b => b.id === id);
+  if (!block) {
+    return res.status(404).json({ error: 'Block not found' });
+  }
+
+  // Prevent disabling the opening statement
+  if (block.depth === 0) {
+    return res.status(400).json({ error: 'Cannot disable opening statement' });
+  }
+
+  disableBlockAndChildren(debate._id, id);
+  const updatedDebate = updateDebate(debate._id);
+  res.json(updatedDebate);
+});
+
+router.patch('/block/:id/restore', (req, res) => {
+  const { id } = req.params;
+  
+  const debate = getCurrentDebate();
+  if (!debate) {
+    return res.status(404).json({ error: 'No current debate' });
+  }
+  
+  const block = debate.blocks.find(b => b.id === id);
+  if (!block) {
+    return res.status(404).json({ error: 'Block not found' });
+  }
+
+  try {
+    restoreBlockAndChildren(debate._id, id);
+    const updatedDebate = updateDebate(debate._id);
+    res.json(updatedDebate);
+  } catch (error) {
+    res.status(400).json({ error: (error as Error).message });
+  }
 });
 
 router.put('/debate', (req, res) => {

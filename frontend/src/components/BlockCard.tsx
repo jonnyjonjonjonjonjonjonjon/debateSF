@@ -16,6 +16,8 @@ export function BlockCard({ block }: BlockCardProps) {
     setExpanded, 
     updateBlock,
     deleteBlock,
+    disableBlock,
+    restoreBlock,
     setEditing
   } = useDebateStore();
   
@@ -35,7 +37,15 @@ export function BlockCard({ block }: BlockCardProps) {
   const isEditing = editingBlockId === block.id;
   const blockColor = getBlockColor(block, debate.blocks);
   const isObjection = block.depth > 0;
+  const isDisabled = block.disabled;
   const OBJECTION_CHAR_LIMIT = 300;
+  
+  // Apply disabled styling
+  const disabledStyles = isDisabled ? {
+    opacity: 0.6,
+    filter: 'grayscale(0.3)',
+    cursor: 'default'
+  } : {};
 
   if (isEditing) {
     return (
@@ -126,6 +136,107 @@ export function BlockCard({ block }: BlockCardProps) {
           >
             Delete
           </button>
+        </div>
+      </div>
+    );
+  }
+
+  // Handle disabled blocks differently
+  if (isDisabled) {
+    // Check if parent is also disabled to determine if restore is allowed
+    const parent = block.parentId ? debate.blocks.find(b => b.id === block.parentId) : null;
+    const canRestore = !parent || !parent.disabled;
+    
+    return (
+      <div
+        className="w-full text-left sharp-corners"
+        style={{
+          height: 'var(--closed-card-height)',
+          minHeight: 'var(--closed-card-height)',
+          backgroundColor: blockColor,
+          border: `2px dashed #999999`,
+          padding: 'var(--spacing-md)',
+          display: 'block',
+          color: block.depth === 0 ? 'var(--opening-fg)' : 'var(--text-color)',
+          position: 'relative',
+          ...disabledStyles
+        }}
+      >
+        <div
+          className="sharp-corners"
+          style={{
+            position: 'absolute',
+            top: 'var(--spacing-xs)',
+            left: 'var(--spacing-xs)',
+            backgroundColor: 'rgba(128, 128, 128, 0.2)',
+            color: 'var(--text-color)',
+            padding: '2px 6px',
+            fontSize: '0.75rem',
+            fontWeight: 'bold'
+          }}
+        >
+          {block.staticNumber}
+        </div>
+        
+        {/* Disabled overlay */}
+        <div
+          className="sharp-corners"
+          style={{
+            position: 'absolute',
+            top: 'var(--spacing-xs)',
+            right: 'var(--spacing-xs)',
+            backgroundColor: '#999999',
+            color: '#FFFFFF',
+            padding: '2px 6px',
+            fontSize: '0.75rem',
+            fontWeight: 'bold'
+          }}
+        >
+          DISABLED
+        </div>
+        
+        {/* Restore button - only show if parent is not disabled */}
+        {canRestore && (
+          <button
+            onClick={() => restoreBlock(block.id)}
+            className="text-xs font-medium sharp-corners"
+            style={{
+              position: 'absolute',
+              bottom: 'var(--spacing-xs)',
+              right: 'var(--spacing-xs)',
+              backgroundColor: '#4CAF50',
+              color: 'white',
+              padding: '4px 8px',
+              border: 'none'
+            }}
+          >
+            Restore
+          </button>
+        )}
+
+        {/* Show message if parent is disabled */}
+        {!canRestore && (
+          <div
+            className="text-xs sharp-corners"
+            style={{
+              position: 'absolute',
+              bottom: 'var(--spacing-xs)',
+              right: 'var(--spacing-xs)',
+              backgroundColor: '#CCCCCC',
+              color: '#666666',
+              padding: '4px 8px',
+              fontSize: '0.7rem'
+            }}
+          >
+            Restore parent first
+          </div>
+        )}
+
+        <div 
+          className={block.depth === 0 ? "text-clamp-center" : "text-clamp"}
+          style={block.depth === 0 ? { fontSize: '1.125rem' } : {}}
+        >
+          <RichText text={block.text} />
         </div>
       </div>
     );
