@@ -39,6 +39,7 @@ export function Tree({ blockId }: TreeProps) {
   // Check if this block is disabled and should be hidden
   if (block.disabled) {
     // Only render if an ancestor has explicitly requested to show disabled blocks
+    // OR if the parent is also disabled (showing disabled children of disabled blocks)
     const ancestorRequestingDisabled = (function checkAncestorShowingDisabled(currentBlock: any): boolean {
       if (!currentBlock.parentId) return false;
       if (showDisabledBlocks.has(currentBlock.parentId)) return true;
@@ -46,7 +47,10 @@ export function Tree({ blockId }: TreeProps) {
       return parent ? checkAncestorShowingDisabled(parent) : false;
     })(block);
     
-    if (!ancestorRequestingDisabled) {
+    const parentIsDisabled = block.parentId ? 
+      debate.blocks.find(b => b.id === block.parentId)?.disabled : false;
+    
+    if (!ancestorRequestingDisabled && !parentIsDisabled) {
       return null; // Hide this disabled block
     }
   }
@@ -62,16 +66,8 @@ export function Tree({ blockId }: TreeProps) {
   // Determine which children to show based on showDisabledBlocks state
   const shouldShowDisabledDirectly = showDisabledBlocks.has(blockId);
   
-  // Check if any ancestor is showing disabled blocks (for cascading disabled display)
-  const ancestorShowingDisabled = (function checkAncestorShowingDisabled(currentBlock: any): boolean {
-    if (!currentBlock.parentId) return false;
-    if (showDisabledBlocks.has(currentBlock.parentId)) return true;
-    const parent = debate.blocks.find(b => b.id === currentBlock.parentId);
-    return parent ? checkAncestorShowingDisabled(parent) : false;
-  })(block);
-  
-  // Show disabled children only if explicitly requested for this block or cascaded from ancestor
-  const shouldShowDisabled = shouldShowDisabledDirectly || ancestorShowingDisabled;
+  // Show disabled children if explicitly requested for this block OR if this block itself is disabled
+  const shouldShowDisabled = shouldShowDisabledDirectly || block.disabled;
   const childrenToShow = shouldShowDisabled ? allChildren : enabledChildren;
 
   const showDraft = draft && draft.parentId === blockId;
@@ -155,7 +151,7 @@ export function Tree({ blockId }: TreeProps) {
                 </>
               )}
               
-              {/* Disabled children indicator */}
+              {/* Show Hidden blocks button */}
               {hasDisabledChildren && (
                 <button
                   onClick={() => toggleShowDisabledBlocks(block.id)}
@@ -168,7 +164,7 @@ export function Tree({ blockId }: TreeProps) {
                     marginLeft: 'auto'
                   }}
                 >
-                  {shouldShowDisabled ? 'Hide' : 'Show'} {disabledChildren.length} disabled
+                  {shouldShowDisabled ? 'Hide' : 'Show'} {disabledChildren.length} hidden
                 </button>
               )}
             </div>
