@@ -89,7 +89,7 @@ export function Tree({ blockId }: TreeProps) {
       
       {/* Bottom row - only appears when this block is expanded */}
       {isExpanded && (
-        <div className="w-full" ref={expandedRef}>
+        <div className="w-full block-expander block-expander-expanded" ref={expandedRef}>
           <div 
             className="w-full sharp-corners" 
             style={{

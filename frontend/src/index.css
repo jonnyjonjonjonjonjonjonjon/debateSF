@@ -197,3 +197,27 @@ body {
 .hidden-children-badge:hover {
   background-color: rgba(255, 149, 0, 1) !important;
 }
+
+/* Block expansion animation styles */
+.block-expander {
+  overflow: hidden;
+  animation: slideDown 300ms ease-out;
+}
+
+@keyframes slideDown {
+  from {
+    max-height: 0;
+    opacity: 0;
+  }
+  to {
+    max-height: 1000px;
+    opacity: 1;
+  }
+}
+
+/* Respect reduced motion preference */
+@media (prefers-reduced-motion: reduce) {
+  .block-expander {
+    transition: none;
+  }
+}
