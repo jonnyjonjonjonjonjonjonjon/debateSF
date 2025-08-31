@@ -48,7 +48,7 @@ export default function App() {
           <div className="flex items-center gap-2 md:gap-3 justify-center md:justify-start">
             <h1 className="text-lg md:text-xl font-bold">Debate Mapper 🚀</h1>
             <span className="text-xs md:text-sm text-white font-mono bg-green-600 px-1 md:px-2 py-1 rounded font-bold">
-              v1.11.0 - FULL WIDTH EXPANDED BLOCKS!
+              v1.11.1 - MOBILE GAP FIXES!
             </span>
           </div>
           <div className="flex gap-1 md:gap-2 justify-center md:justify-end flex-wrap">

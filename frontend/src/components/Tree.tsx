@@ -41,13 +41,17 @@ export function Tree({ blockId }: TreeProps) {
   // Calculate position when block expands
   useEffect(() => {
     if (isExpanded) {
-      // Find the BlockCard element to position the expanded content below it
-      const blockCard = document.querySelector(`[data-block-id="${blockId}"]`);
-      if (blockCard) {
-        const rect = blockCard.getBoundingClientRect();
-        // Position directly below the block with no gap
-        setExpandedTop(rect.bottom + window.scrollY - 1); // -1 to eliminate any potential gap
-      }
+      // Add a small delay to ensure DOM is fully updated
+      const timer = setTimeout(() => {
+        const blockCard = document.querySelector(`[data-block-id="${blockId}"]`);
+        if (blockCard) {
+          const rect = blockCard.getBoundingClientRect();
+          // Position directly below the block with no gap
+          setExpandedTop(rect.bottom + window.scrollY - 2); // -2 to eliminate any potential gap
+        }
+      }, 0);
+      
+      return () => clearTimeout(timer);
     }
   }, [isExpanded, blockId]);
 
