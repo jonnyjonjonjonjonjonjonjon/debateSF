@@ -204,6 +204,20 @@ body {
   animation: slideDown 300ms ease-out;
 }
 
+.block-expander-full-width {
+  left: 0.75rem !important;
+  right: 0.75rem !important;
+  width: auto !important;
+}
+
+@media (min-width: 768px) {
+  .block-expander-full-width {
+    left: 1rem !important;
+    right: 1rem !important;
+    width: auto !important;
+  }
+}
+
 @keyframes slideDown {
   from {
     max-height: 0;

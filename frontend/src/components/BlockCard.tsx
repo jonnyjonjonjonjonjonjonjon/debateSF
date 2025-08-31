@@ -254,6 +254,7 @@ export function BlockCard({ block, hasDisabledChildren = false, disabledChildren
       }}
       aria-expanded={isExpanded}
       aria-label={`Block ${isExpanded ? 'expanded' : 'collapsed'}`}
+      data-block-id={block.id}
       className="w-full text-left sharp-corners"
       style={{
         height: 'var(--closed-card-height)',

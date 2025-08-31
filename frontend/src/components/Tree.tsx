@@ -1,4 +1,5 @@
 import { useRef, useState, useEffect } from 'react';
+import { createPortal } from 'react-dom';
 import { useDebateStore } from '../store/store';
 import { BlockCard } from './BlockCard';
 import { DraftCard } from './DraftCard';
@@ -21,6 +22,7 @@ export function Tree({ blockId }: TreeProps) {
     toggleShowDisabledBlocks 
   } = useDebateStore();
   const [, forceRender] = useState(0);
+  const [expandedTop, setExpandedTop] = useState(0);
   
   // Force re-render on theme changes
   useEffect(() => {
@@ -33,6 +35,20 @@ export function Tree({ blockId }: TreeProps) {
 
   const block = debate.blocks.find(b => b.id === blockId);
   if (!block) return null;
+  
+  const isExpanded = expandedBlockId === block.id;
+
+  // Calculate position when block expands
+  useEffect(() => {
+    if (isExpanded) {
+      // Find the BlockCard element to position the expanded content below it
+      const blockCard = document.querySelector(`[data-block-id="${blockId}"]`);
+      if (blockCard) {
+        const rect = blockCard.getBoundingClientRect();
+        setExpandedTop(rect.bottom + window.scrollY);
+      }
+    }
+  }, [isExpanded, blockId]);
 
   // Check if this block is disabled and should be hidden
   if (block.disabled) {
@@ -69,7 +85,6 @@ export function Tree({ blockId }: TreeProps) {
   const childrenToShow = shouldShowDisabled ? allChildren : enabledChildren;
 
   const showDraft = draft && draft.parentId === blockId;
-  const isExpanded = expandedBlockId === block.id;
   const totalItems = childrenToShow.length + (showDraft ? 1 : 0);
   const blockColor = getBlockColor(block, debate.blocks);
   
@@ -79,7 +94,7 @@ export function Tree({ blockId }: TreeProps) {
   const expandedRef = useRef<HTMLDivElement>(null);
 
   return (
-    <div className="w-full">
+    <div className="w-full" style={{ position: 'relative' }}>
       {/* Top row - uniform height, shows text when closed, empty when open */}
       <BlockCard 
         block={block} 
@@ -88,8 +103,16 @@ export function Tree({ blockId }: TreeProps) {
       />
       
       {/* Bottom row - only appears when this block is expanded */}
-      {isExpanded && (
-        <div className="w-full block-expander block-expander-expanded" ref={expandedRef}>
+      {isExpanded && createPortal(
+        <div 
+          className="w-full block-expander block-expander-expanded block-expander-full-width" 
+          ref={expandedRef}
+          style={{
+            position: 'fixed',
+            top: expandedTop,
+            zIndex: 1000
+          }}
+        >
           <div 
             className="w-full sharp-corners" 
             style={{
@@ -197,7 +220,8 @@ export function Tree({ blockId }: TreeProps) {
               </div>
             </div>
           )}
-        </div>
+        </div>,
+        document.body
       )}
       
       {/* Helper message for opening statement when closed and has no children */}
