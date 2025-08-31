@@ -45,7 +45,8 @@ export function Tree({ blockId }: TreeProps) {
       const blockCard = document.querySelector(`[data-block-id="${blockId}"]`);
       if (blockCard) {
         const rect = blockCard.getBoundingClientRect();
-        setExpandedTop(rect.bottom + window.scrollY);
+        // Position directly below the block with no gap
+        setExpandedTop(rect.bottom + window.scrollY - 1); // -1 to eliminate any potential gap
       }
     }
   }, [isExpanded, blockId]);

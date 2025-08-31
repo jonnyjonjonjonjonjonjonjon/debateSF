@@ -202,12 +202,15 @@ body {
 .block-expander {
   overflow: hidden;
   animation: slideDown 300ms ease-out;
+  margin: 0 !important;
+  padding: 0 !important;
 }
 
 .block-expander-full-width {
   left: 0.75rem !important;
   right: 0.75rem !important;
   width: auto !important;
+  margin-top: 0 !important;
 }
 
 @media (min-width: 768px) {
@@ -215,6 +218,7 @@ body {
     left: 1rem !important;
     right: 1rem !important;
     width: auto !important;
+    margin-top: 0 !important;
   }
 }
 
