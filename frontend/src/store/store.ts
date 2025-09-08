@@ -10,6 +10,7 @@ export type DebateBlock = {
   text: string; 
   disabled?: boolean;
   disabledAt?: string;
+  category?: string;
 };
 export type Debate = { 
   _id: Id; 
@@ -22,7 +23,35 @@ export interface Draft {
   id: string;
   parentId: Id | null;
   text: string;
+  category?: string;
 }
+
+export interface AiSuggestion {
+  id: string;
+  category: string;
+  text: string;
+  isEdited: boolean;
+}
+
+export interface AiCheckState {
+  isActive: boolean;
+  targetBlockId: string | null;
+  suggestions: AiSuggestion[];
+  currentIndex: number;
+  loading: boolean;
+}
+
+export const OBJECTION_CATEGORIES = [
+  'General Objection',
+  'Logical Gap',
+  'Unsupported Claim',
+  'Factual Error', 
+  'Missing Context',
+  'Weak Evidence',
+  'Contradictory',
+  'Scope Issue',
+  'Definition Problem'
+] as const;
 
 interface DebateState {
   debate: Debate | null;
@@ -35,6 +64,7 @@ interface DebateState {
   error: string | null;
   showDebateSelection: boolean;
   showDisabledBlocks: Set<Id>; // Track which parent blocks should show their disabled children
+  aiCheckState: AiCheckState | null;
   
   loadDebate: () => Promise<void>;
   loadDebates: () => Promise<void>;
@@ -46,6 +76,7 @@ interface DebateState {
   setEditing: (blockId: Id | null) => void;
   createDraft: (parentId: Id | null, text: string) => void;
   updateDraft: (text: string) => void;
+  updateDraftCategory: (category: string) => void;
   confirmDraft: () => Promise<void>;
   cancelDraft: () => void;
   agreeToBlock: (blockId: Id) => void;
@@ -56,12 +87,19 @@ interface DebateState {
   toggleShowDisabledBlocks: (parentId: Id) => void;
   toggleResolved: () => Promise<void>;
   resetDebate: () => Promise<void>;
+  
+  // AI Check methods
+  startAiCheck: (blockId: Id) => Promise<void>;
+  confirmCurrentAiSuggestion: (editedText?: string) => Promise<void>;
+  rejectCurrentAiSuggestion: () => void;
+  editCurrentAiSuggestion: (newText: string) => void;
+  completeAiCheck: () => void;
 }
 
 const API_BASE = import.meta.env.VITE_API_URL || 
   (import.meta.env.PROD 
     ? 'https://debatesf-production-4206.up.railway.app/api'
-    : '/api');
+    : 'http://localhost:3001/api');
 
 export const useDebateStore = create<DebateState>((set, get) => ({
   debate: null,
@@ -74,6 +112,7 @@ export const useDebateStore = create<DebateState>((set, get) => ({
   error: null,
   showDebateSelection: false,
   showDisabledBlocks: new Set(),
+  aiCheckState: null,
 
   loadDebates: async () => {
     set({ loading: true, error: null });
@@ -233,6 +272,13 @@ export const useDebateStore = create<DebateState>((set, get) => ({
     }
   },
 
+  updateDraftCategory: (category) => {
+    const { draft } = get();
+    if (draft) {
+      set({ draft: { ...draft, category } });
+    }
+  },
+
   confirmDraft: async () => {
     const { draft } = get();
     if (!draft) return;
@@ -244,7 +290,8 @@ export const useDebateStore = create<DebateState>((set, get) => ({
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ 
           parentId: draft.parentId, 
-          text: draft.text 
+          text: draft.text,
+          ...(draft.category && { category: draft.category })
         }),
       });
       
@@ -402,6 +449,185 @@ export const useDebateStore = create<DebateState>((set, get) => ({
     }
     
     set({ showDisabledBlocks: newSet });
+  },
+
+  // AI Check methods
+  startAiCheck: async (blockId) => {
+    const { debate, currentDebateId } = get();
+    if (!debate || !currentDebateId) return;
+    
+    const block = debate.blocks.find(b => b.id === blockId);
+    if (!block) return;
+    
+    const blockType = block.depth === 0 ? 'opening' : 'objection';
+    
+    set({
+      aiCheckState: {
+        isActive: true,
+        targetBlockId: blockId,
+        suggestions: [],
+        currentIndex: 0,
+        loading: true
+      }
+    });
+    
+    try {
+      const response = await fetch(`${API_BASE}/debate/${currentDebateId}/ai-check`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          blockId,
+          text: block.text,
+          blockType
+        }),
+      });
+      
+      if (!response.ok) {
+        const errorText = await response.text();
+        throw new Error(`Failed to check with AI: ${errorText}`);
+      }
+      
+      const { suggestions } = await response.json();
+      
+      if (!suggestions || suggestions.length === 0) {
+        // No issues found - show success message
+        set({
+          aiCheckState: {
+            isActive: false,
+            targetBlockId: blockId,
+            suggestions: [],
+            currentIndex: 0,
+            loading: false
+          }
+        });
+        // Show "No issues found" message for 4 seconds
+        setTimeout(() => {
+          set({ aiCheckState: null });
+        }, 4000);
+      } else {
+        // Convert suggestions to AiSuggestion format
+        const aiSuggestions: AiSuggestion[] = suggestions.map((s: any, index: number) => ({
+          id: `ai-suggestion-${index}`,
+          category: s.category,
+          text: s.text,
+          isEdited: false
+        }));
+        
+        set({
+          aiCheckState: {
+            isActive: true,
+            targetBlockId: blockId,
+            suggestions: aiSuggestions,
+            currentIndex: 0,
+            loading: false
+          }
+        });
+      }
+    } catch (error: any) {
+      console.error('AI Check error:', error);
+      
+      let errorMessage = 'Failed to analyze with AI';
+      
+      // Parse error response from backend
+      if (error.response?.data?.error) {
+        errorMessage = error.response.data.error;
+      } else if (error.message) {
+        errorMessage = error.message;
+      }
+      set({
+        aiCheckState: null,
+        error: errorMessage
+      });
+    }
+  },
+
+  confirmCurrentAiSuggestion: async (editedText) => {
+    const { aiCheckState, currentDebateId } = get();
+    if (!aiCheckState || !currentDebateId) return;
+    
+    const currentSuggestion = aiCheckState.suggestions[aiCheckState.currentIndex];
+    if (!currentSuggestion) return;
+    
+    const finalText = editedText || currentSuggestion.text;
+    
+    try {
+      const response = await fetch(`${API_BASE}/block`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          parentId: aiCheckState.targetBlockId,
+          text: finalText,
+          category: currentSuggestion.category
+        }),
+      });
+      
+      if (!response.ok) throw new Error('Failed to create objection');
+      const debate = await response.json();
+      
+      // Move to next suggestion or complete
+      const nextIndex = aiCheckState.currentIndex + 1;
+      if (nextIndex >= aiCheckState.suggestions.length) {
+        // All suggestions processed
+        set({
+          debate,
+          aiCheckState: null
+        });
+      } else {
+        // Move to next suggestion
+        set({
+          debate,
+          aiCheckState: {
+            ...aiCheckState,
+            currentIndex: nextIndex
+          }
+        });
+      }
+    } catch (error) {
+      console.error('Error confirming AI suggestion:', error);
+      set({ error: 'Failed to create objection' });
+    }
+  },
+
+  rejectCurrentAiSuggestion: () => {
+    const { aiCheckState } = get();
+    if (!aiCheckState) return;
+    
+    const nextIndex = aiCheckState.currentIndex + 1;
+    if (nextIndex >= aiCheckState.suggestions.length) {
+      // All suggestions processed
+      set({ aiCheckState: null });
+    } else {
+      // Move to next suggestion
+      set({
+        aiCheckState: {
+          ...aiCheckState,
+          currentIndex: nextIndex
+        }
+      });
+    }
+  },
+
+  editCurrentAiSuggestion: (newText) => {
+    const { aiCheckState } = get();
+    if (!aiCheckState) return;
+    
+    const updatedSuggestions = [...aiCheckState.suggestions];
+    updatedSuggestions[aiCheckState.currentIndex] = {
+      ...updatedSuggestions[aiCheckState.currentIndex],
+      text: newText,
+      isEdited: true
+    };
+    
+    set({
+      aiCheckState: {
+        ...aiCheckState,
+        suggestions: updatedSuggestions
+      }
+    });
+  },
+
+  completeAiCheck: () => {
+    set({ aiCheckState: null });
   },
 
 }));

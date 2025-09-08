@@ -3,6 +3,7 @@ import ReactDOM from 'react-dom/client'
 import { BrowserRouter, Routes, Route } from 'react-router-dom'
 import App from './pages/App'
 import DebateView from './pages/DebateView'
+import { AdminPage } from './pages/AdminPage'
 import './index.css'
 import { initializeCSSVariables } from './design/tokens'
 
@@ -14,6 +15,7 @@ ReactDOM.createRoot(document.getElementById('root')!).render(
       <Routes>
         <Route path="/" element={<App />} />
         <Route path="/debate/:id" element={<DebateView />} />
+        <Route path="/admin" element={<AdminPage />} />
       </Routes>
     </BrowserRouter>
   </React.StrictMode>,

@@ -1,5 +1,5 @@
 import { useEffect } from 'react';
-import { useParams } from 'react-router-dom';
+import { useParams, useNavigate } from 'react-router-dom';
 import { useDebateStore } from '../store/store';
 import { Tree } from '../components/Tree';
 import { OpeningCard } from '../components/OpeningCard';
@@ -9,6 +9,7 @@ import { useTheme } from '../hooks/useTheme';
 
 export default function DebateView() {
   const { id } = useParams<{ id: string }>();
+  const navigate = useNavigate();
   const { 
     debate, 
     loading, 
@@ -129,6 +130,17 @@ export default function DebateView() {
             >
               Reset
             </button>
+            <button
+              onClick={() => navigate('/admin')}
+              className="px-2 md:px-3 py-1 text-xs md:text-sm font-medium sharp-corners"
+              style={{
+                backgroundColor: '#FF9500',
+                color: 'white',
+                border: 'none'
+              }}
+            >
+              Admin
+            </button>
           </div>
         </div>
       </header>
@@ -136,8 +148,15 @@ export default function DebateView() {
       <main 
         className="p-3 md:p-4 min-h-screen"
         onClick={(e) => {
-          // Close expanded blocks when clicking in empty space
-          if (e.target === e.currentTarget) {
+          // Close expanded blocks when clicking in empty space or on non-interactive elements
+          const target = e.target as HTMLElement;
+          const isClickableElement = target.tagName === 'BUTTON' || 
+                                   target.tagName === 'INPUT' || 
+                                   target.tagName === 'TEXTAREA' ||
+                                   target.getAttribute('role') === 'button' ||
+                                   target.closest('button');
+          
+          if (!isClickableElement) {
             setExpanded(null);
           }
         }}
