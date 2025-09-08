@@ -1,6 +1,11 @@
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 
+const API_BASE = import.meta.env.VITE_API_URL || 
+  (import.meta.env.PROD 
+    ? 'https://debatesf-production-4206.up.railway.app/api'
+    : '${API_BASE}');
+
 interface Prompts {
   opening: string;
   objection: string;
@@ -40,7 +45,7 @@ export function AdminPage() {
 
   const fetchDebugLogs = async () => {
     try {
-      const response = await fetch('http://localhost:3001/api/admin/debug-logs');
+      const response = await fetch(`${API_BASE}/admin/debug-logs`);
       if (response.ok) {
         const logs = await response.json();
         setDebugLogs(logs);
@@ -52,7 +57,7 @@ export function AdminPage() {
 
   const clearDebugLogs = async () => {
     try {
-      const response = await fetch('http://localhost:3001/api/admin/debug-logs', {
+      const response = await fetch(`${API_BASE}/admin/debug-logs', {
         method: 'DELETE',
       });
       if (response.ok) {
@@ -69,7 +74,7 @@ export function AdminPage() {
     setTesting(true);
     setTestResult(null);
     try {
-      const response = await fetch('http://localhost:3001/api/admin/test-ai', {
+      const response = await fetch(`${API_BASE}/admin/test-ai`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -95,7 +100,7 @@ export function AdminPage() {
   const fetchPrompts = async () => {
     setLoading(true);
     try {
-      const response = await fetch('http://localhost:3001/api/admin/prompts');
+      const response = await fetch(`${API_BASE}/admin/prompts`);
       if (response.ok) {
         const data = await response.json();
         setPrompts(data);
@@ -113,7 +118,7 @@ export function AdminPage() {
     setSaving(true);
     setMessage('');
     try {
-      const response = await fetch('http://localhost:3001/api/admin/prompts', {
+      const response = await fetch(`${API_BASE}/admin/prompts`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -138,7 +143,7 @@ export function AdminPage() {
     if (confirm('Are you sure you want to reset to default prompts?')) {
       setSaving(true);
       try {
-        const response = await fetch('http://localhost:3001/api/admin/prompts/reset', {
+        const response = await fetch(`${API_BASE}/admin/prompts/reset`, {
           method: 'POST',
         });
         
