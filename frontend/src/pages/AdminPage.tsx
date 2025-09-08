@@ -4,7 +4,7 @@ import { useNavigate } from 'react-router-dom';
 const API_BASE = import.meta.env.VITE_API_URL || 
   (import.meta.env.PROD 
     ? 'https://debatesf-production-4206.up.railway.app/api'
-    : '${API_BASE}');
+    : 'http://localhost:3001/api');
 
 interface Prompts {
   opening: string;
@@ -57,7 +57,7 @@ export function AdminPage() {
 
   const clearDebugLogs = async () => {
     try {
-      const response = await fetch(`${API_BASE}/admin/debug-logs', {
+      const response = await fetch(`${API_BASE}/admin/debug-logs`, {
         method: 'DELETE',
       });
       if (response.ok) {
