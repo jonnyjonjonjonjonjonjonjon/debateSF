@@ -26,7 +26,7 @@ export const WhatsAppInput = forwardRef<HTMLTextAreaElement, WhatsAppInputProps>
   showCharacterCount = false
 }, ref) => {
   const internalRef = useRef<HTMLTextAreaElement>(null);
-  const textareaRef = ref || internalRef;
+  const textareaRef = (ref as React.RefObject<HTMLTextAreaElement>) || internalRef;
   const [showHint, setShowHint] = useState(false);
 
   // Handle input changes
@@ -49,7 +49,8 @@ export const WhatsAppInput = forwardRef<HTMLTextAreaElement, WhatsAppInputProps>
   const handleKeyDown = useCallback((e: React.KeyboardEvent<HTMLTextAreaElement>) => {
     // Handle Tab for list indentation
     if (e.key === 'Tab') {
-      const textarea = (textareaRef as React.RefObject<HTMLTextAreaElement>).current;
+      const textarea = textareaRef.current;
+      if (!textarea) return;
       if (textarea) {
         const { selectionStart, selectionEnd } = textarea;
         const currentValue = textarea.value;
@@ -150,7 +151,8 @@ export const WhatsAppInput = forwardRef<HTMLTextAreaElement, WhatsAppInputProps>
     }
     
     if (e.key === 'Enter' && !e.shiftKey) {
-      const textarea = (textareaRef as React.RefObject<HTMLTextAreaElement>).current;
+      const textarea = textareaRef.current;
+      if (!textarea) return;
       if (textarea) {
         const { selectionStart, selectionEnd } = textarea;
         const currentValue = textarea.value;
@@ -269,8 +271,8 @@ export const WhatsAppInput = forwardRef<HTMLTextAreaElement, WhatsAppInputProps>
 
   // Auto focus
   useEffect(() => {
-    if (autoFocus && (textareaRef as React.RefObject<HTMLTextAreaElement>).current) {
-      (textareaRef as React.RefObject<HTMLTextAreaElement>).current.focus();
+    if (autoFocus && textareaRef.current) {
+      textareaRef.current.focus();
     }
   }, [autoFocus]);
 
@@ -280,7 +282,7 @@ export const WhatsAppInput = forwardRef<HTMLTextAreaElement, WhatsAppInputProps>
   return (
     <div style={{ position: 'relative' }}>
       <textarea
-        ref={textareaRef as React.RefObject<HTMLTextAreaElement>}
+        ref={textareaRef}
         value={value}
         onChange={handleInput}
         onKeyDown={handleKeyDown}
