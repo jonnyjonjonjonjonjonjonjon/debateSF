@@ -1,4 +1,4 @@
-import React, { useRef, useEffect, useCallback, useState } from 'react';
+import React, { useRef, useEffect, useCallback, useState, forwardRef } from 'react';
 
 interface WhatsAppInputProps {
   value: string;
@@ -13,7 +13,7 @@ interface WhatsAppInputProps {
   showCharacterCount?: boolean;
 }
 
-export function WhatsAppInput({ 
+export const WhatsAppInput = forwardRef<HTMLTextAreaElement, WhatsAppInputProps>(({ 
   value, 
   onChange, 
   onKeyDown, 
@@ -24,8 +24,9 @@ export function WhatsAppInput({
   'aria-label': ariaLabel,
   maxLength,
   showCharacterCount = false
-}: WhatsAppInputProps) {
-  const textareaRef = useRef<HTMLTextAreaElement>(null);
+}, ref) => {
+  const internalRef = useRef<HTMLTextAreaElement>(null);
+  const textareaRef = ref || internalRef;
   const [showHint, setShowHint] = useState(false);
 
   // Handle input changes
@@ -48,7 +49,7 @@ export function WhatsAppInput({
   const handleKeyDown = useCallback((e: React.KeyboardEvent<HTMLTextAreaElement>) => {
     // Handle Tab for list indentation
     if (e.key === 'Tab') {
-      const textarea = textareaRef.current;
+      const textarea = (textareaRef as React.RefObject<HTMLTextAreaElement>).current;
       if (textarea) {
         const { selectionStart, selectionEnd } = textarea;
         const currentValue = textarea.value;
@@ -149,7 +150,7 @@ export function WhatsAppInput({
     }
     
     if (e.key === 'Enter' && !e.shiftKey) {
-      const textarea = textareaRef.current;
+      const textarea = (textareaRef as React.RefObject<HTMLTextAreaElement>).current;
       if (textarea) {
         const { selectionStart, selectionEnd } = textarea;
         const currentValue = textarea.value;
@@ -268,8 +269,8 @@ export function WhatsAppInput({
 
   // Auto focus
   useEffect(() => {
-    if (autoFocus && textareaRef.current) {
-      textareaRef.current.focus();
+    if (autoFocus && (textareaRef as React.RefObject<HTMLTextAreaElement>).current) {
+      (textareaRef as React.RefObject<HTMLTextAreaElement>).current.focus();
     }
   }, [autoFocus]);
 
@@ -279,7 +280,7 @@ export function WhatsAppInput({
   return (
     <div style={{ position: 'relative' }}>
       <textarea
-        ref={textareaRef}
+        ref={textareaRef as React.RefObject<HTMLTextAreaElement>}
         value={value}
         onChange={handleInput}
         onKeyDown={handleKeyDown}
@@ -333,4 +334,4 @@ export function WhatsAppInput({
       )}
     </div>
   );
-}
+});
