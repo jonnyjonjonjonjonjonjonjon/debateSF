@@ -4,10 +4,32 @@ import Anthropic from '@anthropic-ai/sdk';
 
 const router = express.Router();
 
-// Initialize Anthropic client
-const anthropic = new Anthropic({
-  apiKey: process.env.ANTHROPIC_API_KEY,
-});
+// Initialize Anthropic client with explicit error handling
+let anthropic: Anthropic;
+try {
+  const apiKey = process.env.ANTHROPIC_API_KEY;
+  console.log('Environment check - hasApiKey:', !!apiKey, 'keyLength:', apiKey?.length, 'keyPrefix:', apiKey?.substring(0, 15));
+  
+  if (!apiKey) {
+    throw new Error('ANTHROPIC_API_KEY environment variable is not set');
+  }
+  
+  if (apiKey.length < 50 || !apiKey.startsWith('sk-ant-')) {
+    throw new Error(`Invalid API key format. Length: ${apiKey.length}, starts with sk-ant-: ${apiKey.startsWith('sk-ant-')}`);
+  }
+  
+  anthropic = new Anthropic({
+    apiKey: apiKey,
+  });
+  
+  console.log('Anthropic client initialized successfully with key length:', apiKey.length);
+} catch (error) {
+  console.error('Failed to initialize Anthropic client:', error);
+  // Create a fallback that will provide clear error messages
+  anthropic = new Anthropic({
+    apiKey: 'placeholder', // This will cause API calls to fail with auth errors
+  });
+}
 
 type Id = string;
 type HistoryItem = { text: string; at: string };
@@ -362,6 +384,8 @@ router.post('/debate/:id/ai-check', async (req, res) => {
     console.log('Input Text:', text);
     console.log('Prompt Template Length:', promptTemplate.length);
     console.log('Final Prompt:', prompt);
+    console.log('API Key available:', !!process.env.ANTHROPIC_API_KEY);
+    console.log('API Key length:', process.env.ANTHROPIC_API_KEY ? process.env.ANTHROPIC_API_KEY.length : 'undefined');
     console.log('========================\n');
 
     const message = await anthropic.messages.create({
@@ -498,6 +522,7 @@ router.post('/debate/:id/ai-check', async (req, res) => {
     }
     
     if (error.status === 401) {
+      console.error('Authentication error - API key may be invalid or missing');
       return res.status(500).json({ 
         error: 'AI service authentication error. Please contact support.' 
       });
@@ -509,7 +534,16 @@ router.post('/debate/:id/ai-check', async (req, res) => {
       });
     }
     
+    // Check for the specific authentication method error
+    if (error.message && error.message.includes('Could not resolve authentication method')) {
+      console.error('Authentication method error - API key configuration issue:', error.message);
+      return res.status(500).json({ 
+        error: 'AI service configuration error. Authentication method could not be resolved.' 
+      });
+    }
+    
     // Generic error fallback
+    console.error('Unhandled AI service error:', error);
     res.status(500).json({ 
       error: 'Failed to analyze text with AI. Please try again later.' 
     });
@@ -519,6 +553,19 @@ router.post('/debate/:id/ai-check', async (req, res) => {
 // Admin endpoints for managing AI prompts
 router.get('/admin/prompts', (req, res) => {
   res.json(currentPrompts);
+});
+
+// Debug endpoint for deployment environment
+router.get('/admin/env-debug', (req, res) => {
+  const envDebug = {
+    hasAnthropicApiKey: !!process.env.ANTHROPIC_API_KEY,
+    anthropicApiKeyLength: process.env.ANTHROPIC_API_KEY ? process.env.ANTHROPIC_API_KEY.length : null,
+    anthropicApiKeyPrefix: process.env.ANTHROPIC_API_KEY ? process.env.ANTHROPIC_API_KEY.substring(0, 15) + '...' : null,
+    nodeEnv: process.env.NODE_ENV,
+    port: process.env.PORT,
+    availableAnthropicEnvVars: Object.keys(process.env).filter(key => key.includes('ANTHROPIC'))
+  };
+  res.json(envDebug);
 });
 
 router.post('/admin/prompts', (req, res) => {
@@ -539,6 +586,20 @@ router.post('/admin/prompts', (req, res) => {
 router.post('/admin/prompts/reset', (req, res) => {
   currentPrompts = { ...defaultPrompts };
   res.json(currentPrompts);
+});
+
+// Debug endpoint to check environment variables
+router.get('/admin/env-debug', (req, res) => {
+  const envDebug = {
+    hasAnthropicApiKey: !!process.env.ANTHROPIC_API_KEY,
+    anthropicApiKeyLength: process.env.ANTHROPIC_API_KEY ? process.env.ANTHROPIC_API_KEY.length : null,
+    anthropicApiKeyPrefix: process.env.ANTHROPIC_API_KEY ? process.env.ANTHROPIC_API_KEY.substring(0, 15) + '...' : null,
+    nodeEnv: process.env.NODE_ENV,
+    port: process.env.PORT,
+    availableAnthropicEnvVars: Object.keys(process.env).filter(key => key.includes('ANTHROPIC')),
+    totalEnvVars: Object.keys(process.env).length
+  };
+  res.json(envDebug);
 });
 
 router.get('/admin/debug-logs', (req, res) => {
@@ -569,6 +630,8 @@ router.post('/admin/test-ai', async (req, res) => {
     console.log('Block Type:', blockType);
     console.log('Input Text:', text);
     console.log('Final Prompt:', prompt);
+    console.log('API Key available:', !!process.env.ANTHROPIC_API_KEY);
+    console.log('API Key length:', process.env.ANTHROPIC_API_KEY ? process.env.ANTHROPIC_API_KEY.length : 'undefined');
     console.log('============================\n');
 
     const message = await anthropic.messages.create({
@@ -658,6 +721,21 @@ router.post('/admin/test-ai', async (req, res) => {
     debugLogs.unshift(logEntry);
     if (debugLogs.length > MAX_DEBUG_LOGS) {
       debugLogs = debugLogs.slice(0, MAX_DEBUG_LOGS);
+    }
+    
+    // Handle specific authentication errors
+    if (error.message && error.message.includes('Could not resolve authentication method')) {
+      console.error('Authentication method error in admin test:', error.message);
+      return res.status(500).json({ 
+        error: 'Authentication configuration error: ' + error.message 
+      });
+    }
+    
+    if (error.status === 401) {
+      console.error('Authentication error in admin test - API key may be invalid');
+      return res.status(500).json({ 
+        error: 'Authentication error - invalid API key: ' + error.message 
+      });
     }
     
     res.status(500).json({ error: 'Failed to test AI: ' + error.message });
