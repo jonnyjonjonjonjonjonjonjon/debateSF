@@ -3,6 +3,7 @@ import { createPortal } from 'react-dom';
 import { useDebateStore } from '../store/store';
 import { BlockCard } from './BlockCard';
 import { DraftCard } from './DraftCard';
+import { AiCheckFlow } from './AiCheckFlow';
 import { getBlockColor } from '../utils/colors';
 import { RichText } from './RichText';
 
@@ -16,11 +17,16 @@ export function Tree({ blockId }: TreeProps) {
     draft, 
     expandedBlockId, 
     showDisabledBlocks,
+    aiCheckState,
     agreeToBlock, 
     createDraft, 
     disableBlock,
-    toggleShowDisabledBlocks 
+    toggleShowDisabledBlocks,
+    startAiCheck 
   } = useDebateStore();
+  
+  // Debug aiCheckState
+  console.log('Tree component - aiCheckState:', aiCheckState, 'blockId:', blockId);
   const [, forceRender] = useState(0);
   const [expandedTop, setExpandedTop] = useState(0);
   
@@ -163,6 +169,19 @@ export function Tree({ blockId }: TreeProps) {
                     Challenge
                   </button>
                   
+                  <button
+                    onClick={() => startAiCheck(block.id)}
+                    className="text-sm font-medium sharp-corners"
+                    style={{
+                      backgroundColor: '#4CAF50',
+                      color: 'white',
+                      padding: 'var(--spacing-sm) var(--spacing-md)',
+                      border: 'none'
+                    }}
+                  >
+                    AI Check
+                  </button>
+                  
                   {/* Only show Disable button for objections (depth > 0), not opening statement */}
                   {block.depth > 0 && (
                     <button
@@ -199,6 +218,18 @@ export function Tree({ blockId }: TreeProps) {
               )}
             </div>
           </div>
+          
+          {/* AI Check Flow - renders above children when active */}
+          {aiCheckState && aiCheckState.targetBlockId === block.id && (
+            <AiCheckFlow />
+          )}
+          {/* Debug AI Check rendering */}
+          {console.log('Should render AiCheckFlow?', 
+            !!aiCheckState, 
+            aiCheckState?.targetBlockId, 
+            block.id, 
+            aiCheckState?.targetBlockId === block.id
+          )}
           
           {/* Children of expanded block render below */}
           {(childrenToShow.length > 0 || showDraft) && (
