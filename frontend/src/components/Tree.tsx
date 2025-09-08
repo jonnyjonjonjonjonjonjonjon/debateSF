@@ -24,9 +24,6 @@ export function Tree({ blockId }: TreeProps) {
     toggleShowDisabledBlocks,
     startAiCheck 
   } = useDebateStore();
-  
-  // Debug aiCheckState
-  console.log('Tree component - aiCheckState:', aiCheckState, 'blockId:', blockId);
   const [, forceRender] = useState(0);
   const [expandedTop, setExpandedTop] = useState(0);
   
@@ -222,13 +219,6 @@ export function Tree({ blockId }: TreeProps) {
           {/* AI Check Flow - renders above children when active */}
           {aiCheckState && aiCheckState.targetBlockId === block.id && (
             <AiCheckFlow />
-          )}
-          {/* Debug AI Check rendering */}
-          {console.log('Should render AiCheckFlow?', 
-            !!aiCheckState, 
-            aiCheckState?.targetBlockId, 
-            block.id, 
-            aiCheckState?.targetBlockId === block.id
           )}
           
           {/* Children of expanded block render below */}
