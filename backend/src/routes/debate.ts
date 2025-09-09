@@ -4,31 +4,30 @@ import Anthropic from '@anthropic-ai/sdk';
 
 const router = express.Router();
 
-// Initialize Anthropic client with explicit error handling
-let anthropic: Anthropic;
-try {
-  const apiKey = process.env.ANTHROPIC_API_KEY;
-  console.log('Environment check - hasApiKey:', !!apiKey, 'keyLength:', apiKey?.length, 'keyPrefix:', apiKey?.substring(0, 15));
-  
-  if (!apiKey) {
-    throw new Error('ANTHROPIC_API_KEY environment variable is not set');
+// Lazy initialization of Anthropic client to handle Railway timing issues
+let anthropic: Anthropic | null = null;
+
+function getAnthropicClient(): Anthropic {
+  if (!anthropic) {
+    const apiKey = process.env.ANTHROPIC_API_KEY;
+    console.log('Lazy init - Environment check - hasApiKey:', !!apiKey, 'keyLength:', apiKey?.length, 'keyPrefix:', apiKey?.substring(0, 15));
+    
+    if (!apiKey) {
+      throw new Error('ANTHROPIC_API_KEY environment variable is not set');
+    }
+    
+    if (apiKey.length < 50 || !apiKey.startsWith('sk-ant-')) {
+      throw new Error(`Invalid API key format. Length: ${apiKey.length}, starts with sk-ant-: ${apiKey.startsWith('sk-ant-')}`);
+    }
+    
+    anthropic = new Anthropic({
+      apiKey: apiKey,
+    });
+    
+    console.log('Anthropic client initialized successfully with key length:', apiKey.length);
   }
   
-  if (apiKey.length < 50 || !apiKey.startsWith('sk-ant-')) {
-    throw new Error(`Invalid API key format. Length: ${apiKey.length}, starts with sk-ant-: ${apiKey.startsWith('sk-ant-')}`);
-  }
-  
-  anthropic = new Anthropic({
-    apiKey: apiKey,
-  });
-  
-  console.log('Anthropic client initialized successfully with key length:', apiKey.length);
-} catch (error) {
-  console.error('Failed to initialize Anthropic client:', error);
-  // Create a fallback that will provide clear error messages
-  anthropic = new Anthropic({
-    apiKey: 'placeholder', // This will cause API calls to fail with auth errors
-  });
+  return anthropic;
 }
 
 type Id = string;
@@ -388,7 +387,7 @@ router.post('/debate/:id/ai-check', async (req, res) => {
     console.log('API Key length:', process.env.ANTHROPIC_API_KEY ? process.env.ANTHROPIC_API_KEY.length : 'undefined');
     console.log('========================\n');
 
-    const message = await anthropic.messages.create({
+    const message = await getAnthropicClient().messages.create({
       model: 'claude-3-7-sonnet-20250219',
       max_tokens: 2000,
       messages: [{ role: 'user', content: prompt }]
@@ -634,7 +633,7 @@ router.post('/admin/test-ai', async (req, res) => {
     console.log('API Key length:', process.env.ANTHROPIC_API_KEY ? process.env.ANTHROPIC_API_KEY.length : 'undefined');
     console.log('============================\n');
 
-    const message = await anthropic.messages.create({
+    const message = await getAnthropicClient().messages.create({
       model: 'claude-3-7-sonnet-20250219',
       max_tokens: 2000,
       messages: [{ role: 'user', content: prompt }]
