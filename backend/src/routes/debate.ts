@@ -20,11 +20,15 @@ function getAnthropicClient(): Anthropic {
       throw new Error(`Invalid API key format. Length: ${apiKey.length}, starts with sk-ant-: ${apiKey.startsWith('sk-ant-')}`);
     }
     
-    anthropic = new Anthropic({
-      apiKey: apiKey,
-    });
-    
-    console.log('Anthropic client initialized successfully with key length:', apiKey.length);
+    try {
+      anthropic = new Anthropic({
+        apiKey: apiKey,
+      });
+      console.log('Anthropic client initialized successfully with key length:', apiKey.length);
+    } catch (initError) {
+      console.error('Failed to create Anthropic client:', initError);
+      throw initError;
+    }
   }
   
   return anthropic;
@@ -387,11 +391,27 @@ router.post('/debate/:id/ai-check', async (req, res) => {
     console.log('API Key length:', process.env.ANTHROPIC_API_KEY ? process.env.ANTHROPIC_API_KEY.length : 'undefined');
     console.log('========================\n');
 
-    const message = await getAnthropicClient().messages.create({
-      model: 'claude-3-7-sonnet-20250219',
-      max_tokens: 2000,
-      messages: [{ role: 'user', content: prompt }]
-    });
+    let message;
+    try {
+      console.log('About to call getAnthropicClient()...');
+      const client = getAnthropicClient();
+      console.log('Client obtained successfully, making API call...');
+      
+      message = await client.messages.create({
+        model: 'claude-3-7-sonnet-20250219',
+        max_tokens: 2000,
+        messages: [{ role: 'user', content: prompt }]
+      });
+      
+      console.log('API call completed successfully');
+    } catch (apiError: any) {
+      console.error('Detailed API Error:', apiError);
+      console.error('Error message:', apiError.message);
+      console.error('Error type:', typeof apiError);
+      console.error('Error constructor:', apiError.constructor.name);
+      if (apiError.stack) console.error('Error stack:', apiError.stack);
+      throw apiError;
+    }
     
     const content = message.content[0];
     if (content.type !== 'text') {
@@ -633,11 +653,27 @@ router.post('/admin/test-ai', async (req, res) => {
     console.log('API Key length:', process.env.ANTHROPIC_API_KEY ? process.env.ANTHROPIC_API_KEY.length : 'undefined');
     console.log('============================\n');
 
-    const message = await getAnthropicClient().messages.create({
-      model: 'claude-3-7-sonnet-20250219',
-      max_tokens: 2000,
-      messages: [{ role: 'user', content: prompt }]
-    });
+    let message;
+    try {
+      console.log('ADMIN TEST: About to call getAnthropicClient()...');
+      const client = getAnthropicClient();
+      console.log('ADMIN TEST: Client obtained successfully, making API call...');
+      
+      message = await client.messages.create({
+        model: 'claude-3-7-sonnet-20250219',
+        max_tokens: 2000,
+        messages: [{ role: 'user', content: prompt }]
+      });
+      
+      console.log('ADMIN TEST: API call completed successfully');
+    } catch (apiError: any) {
+      console.error('ADMIN TEST: Detailed API Error:', apiError);
+      console.error('ADMIN TEST: Error message:', apiError.message);
+      console.error('ADMIN TEST: Error type:', typeof apiError);
+      console.error('ADMIN TEST: Error constructor:', apiError.constructor.name);
+      if (apiError.stack) console.error('ADMIN TEST: Error stack:', apiError.stack);
+      throw apiError;
+    }
     
     const content = message.content[0];
     if (content.type !== 'text') {
