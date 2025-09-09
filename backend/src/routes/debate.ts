@@ -622,7 +622,16 @@ router.get('/admin/env-debug', (req, res) => {
     nodeEnv: process.env.NODE_ENV,
     port: process.env.PORT,
     availableAnthropicEnvVars: Object.keys(process.env).filter(key => key.includes('ANTHROPIC')),
-    totalEnvVars: Object.keys(process.env).length
+    totalEnvVars: Object.keys(process.env).length,
+    // Show all environment variables to debug Railway
+    allEnvVars: Object.keys(process.env).sort(),
+    // Show first 20 chars of each env var value to check if key exists under different name
+    envVarSample: Object.keys(process.env)
+      .filter(key => key.toLowerCase().includes('anthropic') || key.toLowerCase().includes('api'))
+      .reduce((acc: any, key) => {
+        acc[key] = process.env[key]?.substring(0, 20) + '...';
+        return acc;
+      }, {})
   };
   res.json(envDebug);
 });
