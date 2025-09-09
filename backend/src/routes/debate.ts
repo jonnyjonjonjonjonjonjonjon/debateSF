@@ -351,6 +351,12 @@ router.post('/debate/:id/reset', (req, res) => {
 
 // AI Check endpoint
 router.post('/debate/:id/ai-check', async (req, res) => {
+  console.log('=== AI CHECK ENDPOINT HIT ===');
+  console.log('Debate ID:', req.params.id);
+  console.log('Request body:', req.body);
+  console.log('Timestamp:', new Date().toISOString());
+  console.log('==============================');
+  
   const { id } = req.params;
   const { blockId, text, blockType } = req.body;
   
@@ -631,6 +637,11 @@ router.delete('/admin/debug-logs', (req, res) => {
 });
 
 router.post('/admin/test-ai', async (req, res) => {
+  console.log('=== ADMIN TEST ENDPOINT HIT ===');
+  console.log('Request body:', req.body);
+  console.log('Timestamp:', new Date().toISOString());
+  console.log('================================');
+  
   const { text, blockType } = req.body;
   
   if (!text || typeof text !== 'string') {
