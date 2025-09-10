@@ -15,6 +15,7 @@ export function BlockCard({ block, hasDisabledChildren = false, disabledChildren
     debate,
     expandedBlockId, 
     editingBlockId,
+    aiCheckState,
     setExpanded, 
     updateBlock,
     deleteBlock,
@@ -36,6 +37,7 @@ export function BlockCard({ block, hasDisabledChildren = false, disabledChildren
 
   const isExpanded = expandedBlockId === block.id;
   const isEditing = editingBlockId === block.id;
+  const isAiCheckActive = aiCheckState && aiCheckState.targetBlockId === block.id;
   const blockColor = getBlockColor(block, debate.blocks);
   const isObjection = block.depth > 0;
   const isDisabled = block.disabled;
@@ -303,7 +305,7 @@ export function BlockCard({ block, hasDisabledChildren = false, disabledChildren
           🔒{disabledChildrenCount}
         </div>
       )}
-      {!isExpanded && (
+      {(!isExpanded || isAiCheckActive) && (
         <div 
           className={block.depth === 0 ? "text-clamp-center" : "text-clamp"}
           style={block.depth === 0 ? { fontSize: '1.125rem' } : {}}
