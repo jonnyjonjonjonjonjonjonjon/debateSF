@@ -83,6 +83,16 @@ export default function DebateView() {
   }
 
   const rootBlocks = debate.blocks.filter(block => block.parentId === null);
+  const isBlankDebate = rootBlocks.length === 0;
+
+  const handleNewDebate = () => {
+    if (isBlankDebate) {
+      // Already on a blank debate, do nothing
+      return;
+    }
+    // Navigate to create new debate only if current has content
+    navigate('/');
+  };
 
   return (
     <div className="min-h-screen overflow-x-hidden">
@@ -91,27 +101,30 @@ export default function DebateView() {
           <div className="flex items-center gap-2 md:gap-3 justify-center md:justify-start">
             <h1 
               className="text-lg md:text-xl font-bold cursor-pointer hover:opacity-80 transition-opacity"
-              onClick={() => navigate('/')}
-              title="Click to create a new blank debate"
+              onClick={handleNewDebate}
+              title={isBlankDebate ? "Already on a new blank debate" : "Click to create a new blank debate"}
             >
               Debate Mapper 🚀
             </h1>
             <span className="text-xs md:text-sm text-white font-mono bg-green-600 px-1 md:px-2 py-1 rounded font-bold">
-              v1.12.5 - Fix New/Title Navigation!
+              v1.12.6 - Smart New Button!
             </span>
           </div>
           <div className="flex gap-1 md:gap-2 justify-center md:justify-end flex-wrap">
             <ThemeSelector currentTheme={currentTheme} onThemeChange={changeTheme} />
             <button
-              onClick={() => navigate('/')}
+              onClick={handleNewDebate}
               className="px-2 md:px-3 py-1 text-xs md:text-sm font-medium sharp-corners"
               style={{
-                backgroundColor: '#EFEFEF',
-                color: '#111111',
-                border: `var(--border-width)px solid var(--border-color)`
+                backgroundColor: isBlankDebate ? '#F5F5F5' : '#EFEFEF',
+                color: isBlankDebate ? '#888888' : '#111111',
+                border: `var(--border-width)px solid var(--border-color)`,
+                opacity: isBlankDebate ? 0.6 : 1,
+                cursor: isBlankDebate ? 'not-allowed' : 'pointer'
               }}
+              title={isBlankDebate ? "Already on a new blank debate" : "Create a new blank debate"}
             >
-              New
+              {isBlankDebate ? "Current" : "New"}
             </button>
             <button
               onClick={() => setShowDebateSelection(true)}
