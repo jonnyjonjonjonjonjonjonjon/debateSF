@@ -1,6 +1,6 @@
 {
   "name": "debate-mapper-frontend",
-  "version": "1.12.7",
+  "version": "1.12.8",
   "type": "module",
   "scripts": {
     "dev": "vite",

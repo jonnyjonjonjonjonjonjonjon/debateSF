@@ -159,7 +159,12 @@ export function AiCheckFlow() {
             maxLength={OBJECTION_CHAR_LIMIT}
             showCharacterCount={true}
             autoFocus
-            style={{ flex: 1, minHeight: '60px', height: '100%' }}
+            style={{ 
+              flex: 1, 
+              minHeight: '120px',
+              maxHeight: 'none',
+              height: 'auto'
+            }}
           />
         </div>
 
