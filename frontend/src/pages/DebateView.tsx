@@ -98,22 +98,11 @@ export default function DebateView() {
               Debate Mapper 🚀
             </h1>
             <span className="text-xs md:text-sm text-white font-mono bg-green-600 px-1 md:px-2 py-1 rounded font-bold">
-              v1.12.3 - NEW HOME PAGE!
+              v1.12.4 - CLEAN NAVIGATION!
             </span>
           </div>
           <div className="flex gap-1 md:gap-2 justify-center md:justify-end flex-wrap">
             <ThemeSelector currentTheme={currentTheme} onThemeChange={changeTheme} />
-            <button
-              onClick={() => navigate('/debates')}
-              className="px-2 md:px-3 py-1 text-xs md:text-sm font-medium sharp-corners"
-              style={{
-                backgroundColor: '#EFEFEF',
-                color: '#111111',
-                border: `var(--border-width)px solid var(--border-color)`
-              }}
-            >
-              Debates
-            </button>
             <button
               onClick={createNewDebate}
               className="px-2 md:px-3 py-1 text-xs md:text-sm font-medium sharp-corners"

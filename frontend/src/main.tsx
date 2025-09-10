@@ -1,7 +1,6 @@
 import React from 'react'
 import ReactDOM from 'react-dom/client'
 import { BrowserRouter, Routes, Route } from 'react-router-dom'
-import App from './pages/App'
 import DebateView from './pages/DebateView'
 import { AdminPage } from './pages/AdminPage'
 import { HomePage } from './pages/HomePage'
@@ -15,7 +14,6 @@ ReactDOM.createRoot(document.getElementById('root')!).render(
     <BrowserRouter>
       <Routes>
         <Route path="/" element={<HomePage />} />
-        <Route path="/debates" element={<App />} />
         <Route path="/debate/:id" element={<DebateView />} />
         <Route path="/admin" element={<AdminPage />} />
       </Routes>
