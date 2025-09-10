@@ -11,6 +11,7 @@ const allowedOrigins = process.env.ALLOWED_ORIGINS
   : [
     'https://debate-sf3-ajti3sbp9-jon-hughes-projects-24330bac.vercel.app',
     'https://debate-dzps7d911-jon-hughes-projects-24330bac.vercel.app',
+    'https://debate-sf-4.vercel.app',
     'http://localhost:5173'
   ];
 
