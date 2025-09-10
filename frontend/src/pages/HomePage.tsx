@@ -8,14 +8,12 @@ const API_BASE = import.meta.env.VITE_API_URL ||
 
 export function HomePage() {
   const navigate = useNavigate();
-  const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
     // Create a new debate and redirect to it
     const createAndRedirect = async () => {
       try {
-        setLoading(true);
         setError(null);
         
         const response = await fetch(`${API_BASE}/debate`, {
@@ -34,7 +32,6 @@ export function HomePage() {
       } catch (error) {
         console.error('Error creating new debate:', error);
         setError(error instanceof Error ? error.message : 'Failed to create debate');
-        setLoading(false);
       }
     };
 
