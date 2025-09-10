@@ -17,7 +17,6 @@ export default function DebateView() {
     showDebateSelection,
     selectDebate, 
     resetDebate,
-    createNewDebate,
     setShowDebateSelection,
     setExpanded
   } = useDebateStore();
@@ -92,19 +91,19 @@ export default function DebateView() {
           <div className="flex items-center gap-2 md:gap-3 justify-center md:justify-start">
             <h1 
               className="text-lg md:text-xl font-bold cursor-pointer hover:opacity-80 transition-opacity"
-              onClick={createNewDebate}
+              onClick={() => navigate('/')}
               title="Click to create a new blank debate"
             >
               Debate Mapper 🚀
             </h1>
             <span className="text-xs md:text-sm text-white font-mono bg-green-600 px-1 md:px-2 py-1 rounded font-bold">
-              v1.12.4 - CLEAN NAVIGATION!
+              v1.12.5 - Fix New/Title Navigation!
             </span>
           </div>
           <div className="flex gap-1 md:gap-2 justify-center md:justify-end flex-wrap">
             <ThemeSelector currentTheme={currentTheme} onThemeChange={changeTheme} />
             <button
-              onClick={createNewDebate}
+              onClick={() => navigate('/')}
               className="px-2 md:px-3 py-1 text-xs md:text-sm font-medium sharp-corners"
               style={{
                 backgroundColor: '#EFEFEF',
