@@ -280,7 +280,7 @@ export const WhatsAppInput = forwardRef<HTMLTextAreaElement, WhatsAppInputProps>
   const isNearLimit = maxLength && value.length > maxLength * 0.8;
 
   return (
-    <div style={{ position: 'relative' }}>
+    <div style={{ position: 'relative', display: 'flex', flexDirection: 'column', height: style?.height || 'auto', flex: style?.flex }}>
       <textarea
         ref={textareaRef}
         value={value}
@@ -293,7 +293,10 @@ export const WhatsAppInput = forwardRef<HTMLTextAreaElement, WhatsAppInputProps>
           ...style,
           fontFamily: 'inherit',
           lineHeight: '1.4',
-          borderColor: isOverLimit ? '#FF4444' : showHint ? '#007AFF' : style.borderColor
+          borderColor: isOverLimit ? '#FF4444' : showHint ? '#007AFF' : style.borderColor,
+          resize: 'vertical',
+          width: '100%',
+          flex: style?.flex || 'none'
         }}
       />
       

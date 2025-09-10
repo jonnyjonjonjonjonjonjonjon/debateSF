@@ -33,13 +33,13 @@ export function AiCheckFlow() {
           position: 'absolute',
           top: 0,
           left: 0,
-          zIndex: 1000
+          zIndex: 1000,
+          overflow: 'visible'
         }}
       >
         <div 
           className="w-full sharp-corners" 
           style={{
-            minHeight: 'var(--expander-min-height)',
             backgroundColor: '#FFF9E6',
             border: `var(--border-width)px solid #FF9500`,
             padding: 'var(--spacing-lg)',
@@ -65,13 +65,13 @@ export function AiCheckFlow() {
           position: 'absolute',
           top: 0,
           left: 0,
-          zIndex: 1000
+          zIndex: 1000,
+          overflow: 'visible'
         }}
       >
         <div 
           className="w-full sharp-corners" 
           style={{
-            minHeight: 'var(--expander-min-height)',
             backgroundColor: '#E8F5E8',
             border: `var(--border-width)px solid #4CAF50`,
             padding: 'var(--spacing-lg)',
@@ -116,16 +116,18 @@ export function AiCheckFlow() {
         position: 'absolute',
         top: 0,
         left: 0,
-        zIndex: 1000
+        zIndex: 1000,
+        overflow: 'visible'
       }}
     >
       <div 
         className="w-full sharp-corners" 
         style={{
-          minHeight: 'var(--expander-min-height)',
           backgroundColor: '#FFF9E6',
           border: `var(--border-width)px solid #FF9500`,
-          padding: 'var(--spacing-lg)'
+          padding: 'var(--spacing-lg)',
+          display: 'flex',
+          flexDirection: 'column'
         }}
       >
         {/* Header with category and progress */}
@@ -148,7 +150,7 @@ export function AiCheckFlow() {
         </div>
 
         {/* AI suggestion text input */}
-        <div className="mb-4">
+        <div className="mb-4" style={{ flex: 1, display: 'flex', flexDirection: 'column' }}>
           <WhatsAppInput
             ref={inputRef}
             value={currentSuggestion.text}
@@ -157,6 +159,7 @@ export function AiCheckFlow() {
             maxLength={OBJECTION_CHAR_LIMIT}
             showCharacterCount={true}
             autoFocus
+            style={{ flex: 1, minHeight: '60px', height: '100%' }}
           />
         </div>
 

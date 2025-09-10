@@ -118,7 +118,8 @@ export function Tree({ blockId }: TreeProps) {
           style={{
             position: 'absolute',
             top: expandedTop,
-            zIndex: 1000
+            zIndex: 1000,
+            overflow: aiCheckState?.targetBlockId === block.id ? 'visible' : 'hidden'
           }}
         >
           <div 

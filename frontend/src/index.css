@@ -230,7 +230,7 @@ body {
     opacity: 0;
   }
   to {
-    max-height: 1000px;
+    max-height: none;
     opacity: 1;
   }
 }
