@@ -79,19 +79,26 @@ Look for these critical issues:
 
 Pay special attention to basic factual accuracy - if the statement makes claims that are obviously false (like "the sky is green" or "water boils at 200°C"), these should be flagged as factual errors.
 
-If you find significant issues, provide 1-4 specific, actionable objections. Each objection should:
-- Be under 300 characters (about 50-60 words) - keep it very brief and punchy
+If you find significant issues, provide 1-4 specific, actionable objections. 
+
+CRITICAL: Each objection text must end with two line breaks followed by the EXACT original statement with ONLY ONE word replaced and shown in [square brackets]. Use ONLY 1 WORD inside the brackets.
+
+Each objection should:
+- Be under 250 characters total (including the double line break and corrected statement)
 - Use clear, simple language an 18-year-old would understand
 - Focus on one main issue only
 - Be completely distinct from other objections - no duplicated points or overlapping arguments
 - Include a category from: "Factual Error", "Logical Gap", "Unsupported Claim", "Missing Context", "Weak Evidence", "Contradictory", "Scope Issue", "Definition Problem"
+- End with two line breaks and the EXACT original statement with ONE SINGLE WORD replacement: [oneword]
+- NEVER use multiple words in brackets - ONLY ONE WORD like [blue] or [some] or [arguably]
+- NEVER use phrases like [among the best] - ONLY single words
 
 If no significant issues are found, respond with just "null".
 
 Format your response as a JSON array of objects with "category" and "text" properties, or just "null" if no issues found.
 
-Example of good brief response:
-[{"category": "Factual Error", "text": "The sky appears blue due to light scattering, not green. This contradicts basic observation and scientific understanding of atmospheric optics."}]`,
+Example:
+[{"category": "Factual Error", "text": "The sky appears blue, not green.\n\nThe sky is [blue]."}]`,
   objection: `You are an expert debate analyst and fact-checker. Analyze this objection for significant issues that would meaningfully impact a debate. Focus only on substantial problems, not minor stylistic issues.
 
 Objection: "\${text}"
@@ -106,19 +113,26 @@ Look for these critical issues:
 
 Pay special attention to basic factual accuracy - if the objection makes claims that are obviously false (like "the sky is green" or "water boils at 200°C"), these should be flagged as factual errors.
 
-If you find significant issues, provide 1-4 specific, actionable counter-objections. Each should:
-- Be under 300 characters (about 50-60 words) - keep it very brief and punchy
+If you find significant issues, provide 1-4 specific, actionable counter-objections.
+
+CRITICAL: Each counter-objection text must end with two line breaks followed by the EXACT original objection with ONLY ONE word replaced and shown in [square brackets]. Use ONLY 1 WORD inside the brackets.
+
+Each should:
+- Be under 250 characters total (including the double line break and corrected objection)
 - Use clear, simple language an 18-year-old would understand
 - Focus on one main issue only
 - Be completely distinct from other counter-objections - no duplicated points or overlapping arguments
 - Include a category from: "Factual Error", "Logical Gap", "Unsupported Claim", "Missing Context", "Weak Evidence", "Contradictory", "Scope Issue", "Definition Problem"
+- End with two line breaks and the EXACT original objection with ONE SINGLE WORD replacement: [oneword]
+- NEVER use multiple words in brackets - ONLY ONE WORD like [reportedly] or [some] or [allegedly]
+- NEVER use phrases like [studies show] - ONLY single words
 
 If no significant issues are found, respond with just "null".
 
 Format your response as a JSON array of objects with "category" and "text" properties, or just "null" if no issues found.
 
-Example of good brief response:
-[{"category": "Factual Error", "text": "This claim lacks supporting evidence. Well-established research contradicts this position."}]`
+Example:
+[{"category": "Factual Error", "text": "This claim lacks evidence.\n\n[Studies show] this claim lacks evidence."}]`
 };
 
 let currentPrompts: AIPrompts = { ...defaultPrompts };
@@ -441,7 +455,37 @@ router.post('/debate/:id/ai-check', async (req, res) => {
         suggestions = null;
         console.log('AI found no significant issues');
       } else {
-        suggestions = JSON.parse(responseText);
+        // Fix JSON by compacting structural whitespace and escaping content newlines
+        let cleanedResponse = responseText.trim();
+        
+        // First, escape literal newlines inside string values to \\n
+        // Use dotAll flag to make . match newlines, and handle escaped quotes properly
+        cleanedResponse = cleanedResponse.replace(/"text":\s*"((?:[^"\\]|\\.)*)"/gs, (match, content) => {
+          console.log('Escaping newlines in content:', JSON.stringify(content));
+          const escapedContent = content.replace(/\n/g, '\\n');
+          console.log('Escaped content:', JSON.stringify(escapedContent));
+          return `"text": "${escapedContent}"`;
+        });
+        
+        console.log('After escaping text content:');
+        console.log('Response length:', cleanedResponse.length);
+        console.log('First 300 chars:', cleanedResponse.substring(0, 300));
+        
+        // Then remove structural formatting newlines
+        cleanedResponse = cleanedResponse
+          .replace(/\n(\s*[\}\]])/g, '$1') // Remove newlines before closing braces/brackets
+          .replace(/\n(\s*[,])/g, '$1')    // Remove newlines before commas
+          .replace(/\n(\s*"[^"]*":)/g, ' $1') // Remove newlines before object keys
+          .replace(/\[\s*\n\s*/g, '[')      // Remove newlines after opening brackets
+          .replace(/\{\s*\n\s*/g, '{')      // Remove newlines after opening braces
+          .replace(/,\s*\n\s*/g, ', ')      // Replace comma+newline with comma+space
+          .replace(/  +/g, ' '); // Normalize multiple spaces to single spaces
+        
+        console.log('Original response length:', responseText.length);
+        console.log('Original first 200 chars:', responseText.substring(0, 200));
+        console.log('Cleaned response length:', cleanedResponse.length);
+        console.log('Cleaned first 200 chars:', cleanedResponse.substring(0, 200));
+        suggestions = JSON.parse(cleanedResponse);
         console.log('Parsed suggestions:', JSON.stringify(suggestions, null, 2));
         
         // Validate the response format
@@ -711,7 +755,37 @@ router.post('/admin/test-ai', async (req, res) => {
       if (responseText === 'null' || responseText.toLowerCase().trim() === 'no significant issues found' || responseText.toLowerCase().includes('no significant issues found')) {
         suggestions = null;
       } else {
-        suggestions = JSON.parse(responseText);
+        // Fix JSON by compacting structural whitespace and escaping content newlines
+        let cleanedResponse = responseText.trim();
+        
+        // First, escape literal newlines inside string values to \\n
+        // Use dotAll flag to make . match newlines, and handle escaped quotes properly
+        cleanedResponse = cleanedResponse.replace(/"text":\s*"((?:[^"\\]|\\.)*)"/gs, (match, content) => {
+          console.log('Escaping newlines in content:', JSON.stringify(content));
+          const escapedContent = content.replace(/\n/g, '\\n');
+          console.log('Escaped content:', JSON.stringify(escapedContent));
+          return `"text": "${escapedContent}"`;
+        });
+        
+        console.log('After escaping text content:');
+        console.log('Response length:', cleanedResponse.length);
+        console.log('First 300 chars:', cleanedResponse.substring(0, 300));
+        
+        // Then remove structural formatting newlines
+        cleanedResponse = cleanedResponse
+          .replace(/\n(\s*[\}\]])/g, '$1') // Remove newlines before closing braces/brackets
+          .replace(/\n(\s*[,])/g, '$1')    // Remove newlines before commas
+          .replace(/\n(\s*"[^"]*":)/g, ' $1') // Remove newlines before object keys
+          .replace(/\[\s*\n\s*/g, '[')      // Remove newlines after opening brackets
+          .replace(/\{\s*\n\s*/g, '{')      // Remove newlines after opening braces
+          .replace(/,\s*\n\s*/g, ', ')      // Replace comma+newline with comma+space
+          .replace(/  +/g, ' '); // Normalize multiple spaces to single spaces
+        
+        console.log('Original response length:', responseText.length);
+        console.log('Original first 200 chars:', responseText.substring(0, 200));
+        console.log('Cleaned response length:', cleanedResponse.length);
+        console.log('Cleaned first 200 chars:', cleanedResponse.substring(0, 200));
+        suggestions = JSON.parse(cleanedResponse);
         
         if (!Array.isArray(suggestions)) {
           suggestions = null;
