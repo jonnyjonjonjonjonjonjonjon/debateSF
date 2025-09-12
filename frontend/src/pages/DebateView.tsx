@@ -25,7 +25,24 @@ export default function DebateView() {
 
   useEffect(() => {
     if (id) {
-      selectDebate(id);
+      // Handle temporary debates (not saved to backend yet)
+      if (id.startsWith('temp_')) {
+        // Create a local blank debate for temporary IDs
+        const tempDebate = {
+          _id: id,
+          resolved: false,
+          blocks: [],
+          updatedAt: new Date().toISOString()
+        };
+        useDebateStore.setState({ 
+          debate: tempDebate, 
+          currentDebateId: id,
+          loading: false,
+          error: null 
+        });
+      } else {
+        selectDebate(id);
+      }
     }
   }, [id, selectDebate]);
 
@@ -107,7 +124,7 @@ export default function DebateView() {
               Debate Mapper 🚀
             </h1>
             <span className="text-xs md:text-sm text-white font-mono bg-green-600 px-1 md:px-2 py-1 rounded font-bold">
-              v1.12.11 - Added 404 Page with Home Link
+              v1.12.12 - Fixed Draft Cancellation & Blank Debates
             </span>
           </div>
           <div className="flex gap-1 md:gap-2 justify-center md:justify-end flex-wrap">

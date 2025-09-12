@@ -21,12 +21,21 @@ export function OpeningCard() {
     return () => window.removeEventListener('theme-changed', handleThemeChange);
   }, []);
 
+  // Reset isCreatingOpening when draft is cleared externally
+  useEffect(() => {
+    if (isCreatingOpening && !draft) {
+      setIsCreatingOpening(false);
+    }
+  }, [draft, isCreatingOpening]);
+
   if (!debate) return null;
 
   const openingBlock = debate.blocks.find(block => block.depth === 0);
   
   if (!openingBlock) {
-    if (isCreatingOpening || draft?.parentId === null) {
+    // Show DraftCard if we're creating an opening or have an opening draft
+    const hasOpeningDraft = draft && draft.parentId === null;
+    if (isCreatingOpening || hasOpeningDraft) {
       return (
         <DraftCard 
           onCancel={() => {
@@ -36,6 +45,7 @@ export function OpeningCard() {
       );
     }
 
+    // Show the opening prompt when there's no opening block and no draft
     return (
       <div className="w-full">
         <button

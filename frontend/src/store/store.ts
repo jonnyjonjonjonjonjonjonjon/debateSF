@@ -244,8 +244,10 @@ export const useDebateStore = create<DebateState>((set, get) => ({
 
   setExpanded: (blockId) => {
     const { expandedBlockId } = get();
+    const newExpandedId = expandedBlockId === blockId ? null : blockId;
+    
     set({ 
-      expandedBlockId: expandedBlockId === blockId ? null : blockId,
+      expandedBlockId: newExpandedId,
       editingBlockId: null,
       draft: null 
     });
@@ -280,29 +282,65 @@ export const useDebateStore = create<DebateState>((set, get) => ({
   },
 
   confirmDraft: async () => {
-    const { draft } = get();
+    const { draft, currentDebateId } = get();
     if (!draft) return;
 
     set({ loading: true, error: null });
     try {
-      const response = await fetch(`${API_BASE}/block`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ 
-          parentId: draft.parentId, 
-          text: draft.text,
-          ...(draft.category && { category: draft.category })
-        }),
-      });
-      
-      if (!response.ok) throw new Error('Failed to create block');
-      const debate = await response.json();
-      set({ 
-        debate, 
-        currentDebateId: debate._id,
-        draft: null, 
-        loading: false 
-      });
+      // If we're on a temporary debate and this is the opening statement, create a real debate first
+      if (currentDebateId?.startsWith('temp_') && draft.parentId === null) {
+        // Create a new debate on the backend
+        const createResponse = await fetch(`${API_BASE}/debate`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' }
+        });
+        
+        if (!createResponse.ok) throw new Error('Failed to create debate');
+        const newDebate = await createResponse.json();
+        
+        // The backend sets this as the current debate, so now create the block
+        const blockResponse = await fetch(`${API_BASE}/block`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ 
+            parentId: draft.parentId, 
+            text: draft.text,
+            ...(draft.category && { category: draft.category })
+          }),
+        });
+        
+        if (!blockResponse.ok) throw new Error('Failed to create opening statement');
+        const updatedDebate = await blockResponse.json();
+        
+        // Update the URL to the real debate ID and update state
+        window.history.replaceState(null, '', `/debate/${newDebate._id}`);
+        set({ 
+          debate: updatedDebate, 
+          currentDebateId: newDebate._id,
+          draft: null, 
+          loading: false 
+        });
+      } else {
+        // Use existing logic for non-temporary debates
+        const response = await fetch(`${API_BASE}/block`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ 
+            parentId: draft.parentId, 
+            text: draft.text,
+            ...(draft.category && { category: draft.category })
+          }),
+        });
+        
+        if (!response.ok) throw new Error('Failed to create block');
+        const debate = await response.json();
+        set({ 
+          debate, 
+          currentDebateId: debate._id,
+          draft: null, 
+          loading: false 
+        });
+      }
     } catch (error) {
       set({ error: (error as Error).message, loading: false });
     }

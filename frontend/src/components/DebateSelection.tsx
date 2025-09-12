@@ -32,6 +32,9 @@ export function DebateSelection() {
       : openingBlock.text;
   };
 
+  // Filter out empty debates (those with no blocks)
+  const nonEmptyDebates = debates.filter(debate => debate.blocks && debate.blocks.length > 0);
+
   if (loading) {
     return (
       <div className="p-4">
@@ -76,7 +79,7 @@ export function DebateSelection() {
         </button>
       </div>
 
-      {debates.length === 0 ? (
+      {nonEmptyDebates.length === 0 ? (
         <div className="text-center py-8">
           <p className="mb-4">No debates found.</p>
           <button
@@ -93,7 +96,7 @@ export function DebateSelection() {
         </div>
       ) : (
         <div className="space-y-2">
-          {debates.map((debate) => (
+          {nonEmptyDebates.map((debate) => (
             <div
               key={debate._id}
               className="sharp-corners border p-3 flex justify-between items-start"
