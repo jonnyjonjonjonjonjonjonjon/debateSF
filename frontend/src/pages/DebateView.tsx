@@ -107,7 +107,7 @@ export default function DebateView() {
               Debate Mapper 🚀
             </h1>
             <span className="text-xs md:text-sm text-white font-mono bg-green-600 px-1 md:px-2 py-1 rounded font-bold">
-              v1.12.10 - JSON Parsing Fix!
+              v1.12.11 - Added 404 Page with Home Link
             </span>
           </div>
           <div className="flex gap-1 md:gap-2 justify-center md:justify-end flex-wrap">
