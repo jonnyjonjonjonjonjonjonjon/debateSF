@@ -38,7 +38,8 @@ export default function DebateView() {
           debate: tempDebate, 
           currentDebateId: id,
           loading: false,
-          error: null 
+          error: null,
+          showDebateSelection: false
         });
       } else {
         selectDebate(id);
@@ -103,11 +104,7 @@ export default function DebateView() {
   const isBlankDebate = rootBlocks.length === 0;
 
   const handleNewDebate = () => {
-    if (isBlankDebate) {
-      // Already on a blank debate, do nothing
-      return;
-    }
-    // Navigate to create new debate only if current has content
+    // Always navigate to create a new blank debate
     navigate('/');
   };
 
@@ -124,25 +121,11 @@ export default function DebateView() {
               Debate Mapper 🚀
             </h1>
             <span className="text-xs md:text-sm text-white font-mono bg-green-600 px-1 md:px-2 py-1 rounded font-bold">
-              v1.12.12 - Fixed Draft Cancellation & Blank Debates
+              v1.12.13 - Cleaned Up Navigation & Modal Controls
             </span>
           </div>
           <div className="flex gap-1 md:gap-2 justify-center md:justify-end flex-wrap">
             <ThemeSelector currentTheme={currentTheme} onThemeChange={changeTheme} />
-            <button
-              onClick={handleNewDebate}
-              className="px-2 md:px-3 py-1 text-xs md:text-sm font-medium sharp-corners"
-              style={{
-                backgroundColor: isBlankDebate ? '#F5F5F5' : '#EFEFEF',
-                color: isBlankDebate ? '#888888' : '#111111',
-                border: `var(--border-width)px solid var(--border-color)`,
-                opacity: isBlankDebate ? 0.6 : 1,
-                cursor: isBlankDebate ? 'not-allowed' : 'pointer'
-              }}
-              title={isBlankDebate ? "Already on a new blank debate" : "Create a new blank debate"}
-            >
-              {isBlankDebate ? "Current" : "New"}
-            </button>
             <button
               onClick={() => setShowDebateSelection(true)}
               className="px-2 md:px-3 py-1 text-xs md:text-sm font-medium sharp-corners"
@@ -155,7 +138,7 @@ export default function DebateView() {
               Select
             </button>
             <button
-              onClick={resetDebate}
+              onClick={handleNewDebate}
               className="px-2 md:px-3 py-1 text-xs md:text-sm font-medium sharp-corners"
               style={{
                 backgroundColor: '#EFEFEF',
@@ -163,7 +146,7 @@ export default function DebateView() {
                 border: `var(--border-width)px solid var(--border-color)`
               }}
             >
-              Reset
+              {showDebateSelection ? 'New' : 'Reset'}
             </button>
             <button
               onClick={() => navigate('/admin')}

@@ -1,7 +1,9 @@
 import { useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { useDebateStore } from '../store/store';
 
 export function DebateSelection() {
+  const navigate = useNavigate();
   const { 
     debates, 
     loading, 
@@ -35,6 +37,13 @@ export function DebateSelection() {
   // Filter out empty debates (those with no blocks)
   const nonEmptyDebates = debates.filter(debate => debate.blocks && debate.blocks.length > 0);
 
+  const handleCreateNew = () => {
+    // Close the selection modal first
+    setShowDebateSelection(false);
+    // Use replace to ensure we get a fresh blank debate
+    navigate('/', { replace: true });
+  };
+
   if (loading) {
     return (
       <div className="p-4">
@@ -64,35 +73,16 @@ export function DebateSelection() {
 
   return (
     <div className="p-4">
-      <div className="flex justify-between items-center mb-4">
+      <div className="mb-4">
         <h2 className="text-lg font-bold">Select a Debate</h2>
-        <button
-          onClick={() => setShowDebateSelection(false)}
-          className="px-3 py-1 text-sm font-medium sharp-corners"
-          style={{
-            backgroundColor: '#EFEFEF',
-            color: '#111111',
-            border: `var(--border-width)px solid var(--border-color)`
-          }}
-        >
-          Cancel
-        </button>
       </div>
 
       {nonEmptyDebates.length === 0 ? (
         <div className="text-center py-8">
           <p className="mb-4">No debates found.</p>
-          <button
-            onClick={() => setShowDebateSelection(false)}
-            className="px-4 py-2 text-sm font-medium sharp-corners"
-            style={{
-              backgroundColor: '#EFEFEF',
-              color: '#111111',
-              border: `var(--border-width)px solid var(--border-color)`
-            }}
-          >
-            Create Your First Debate
-          </button>
+          <p className="text-sm" style={{ color: 'var(--text-color)', opacity: 0.7 }}>
+            Use the "New" button in the header to create your first debate.
+          </p>
         </div>
       ) : (
         <div className="space-y-2">

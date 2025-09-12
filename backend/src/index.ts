@@ -43,5 +43,5 @@ app.use((req, res) => {
 });
 
 app.listen(PORT, () => {
-  console.log(`Backend running on port ${PORT}`);
+  console.log(`Backend v1.12.13 running on port ${PORT}`);
 });
