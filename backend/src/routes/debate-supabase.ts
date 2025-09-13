@@ -767,7 +767,7 @@ router.get('/debate', async (req, res) => {
       }
     }
     
-    const debate = await supabaseService.getDebateById(currentDebateId);
+    const debate = await supabaseService.getDebateById(currentDebateId!);
     if (!debate) {
       return res.status(404).json({ error: 'No current debate' });
     }
@@ -796,7 +796,7 @@ router.post('/block', async (req, res) => {
       }
     }
 
-    const debate = await supabaseService.getDebateById(currentDebateId);
+    const debate = await supabaseService.getDebateById(currentDebateId!);
     if (!debate) {
       return res.status(404).json({ error: 'No current debate' });
     }
@@ -816,7 +816,7 @@ router.post('/block', async (req, res) => {
     const staticNumber = generateStaticNumber(debate.blocks, parentId);
 
     await supabaseService.createBlock(
-      currentDebateId,
+      currentDebateId!,
       parentId || null,
       depth,
       siblings.length,
@@ -825,7 +825,7 @@ router.post('/block', async (req, res) => {
       category
     );
 
-    const updatedDebate = await supabaseService.getDebateById(currentDebateId);
+    const updatedDebate = await supabaseService.getDebateById(currentDebateId!);
     res.json(updatedDebate);
   } catch (error) {
     console.error('Error creating block:', error);
@@ -842,7 +842,7 @@ router.patch('/block/:id', async (req, res) => {
       return res.status(404).json({ error: 'No current debate' });
     }
     
-    const debate = await supabaseService.getDebateById(currentDebateId);
+    const debate = await supabaseService.getDebateById(currentDebateId!);
     if (!debate) {
       return res.status(404).json({ error: 'No current debate' });
     }
@@ -868,7 +868,7 @@ router.patch('/block/:id', async (req, res) => {
       await reindexChildren(currentDebateId, block.parentId);
     }
 
-    const updatedDebate = await supabaseService.getDebateById(currentDebateId);
+    const updatedDebate = await supabaseService.getDebateById(currentDebateId!);
     res.json(updatedDebate);
   } catch (error) {
     console.error('Error updating block:', error);
@@ -885,7 +885,7 @@ router.delete('/block/:id', async (req, res) => {
       return res.status(404).json({ error: 'No current debate' });
     }
     
-    const debate = await supabaseService.getDebateById(currentDebateId);
+    const debate = await supabaseService.getDebateById(currentDebateId!);
     if (!debate) {
       return res.status(404).json({ error: 'No current debate' });
     }
@@ -902,7 +902,7 @@ router.delete('/block/:id', async (req, res) => {
       await reindexChildren(currentDebateId, block.parentId);
     }
 
-    const updatedDebate = await supabaseService.getDebateById(currentDebateId);
+    const updatedDebate = await supabaseService.getDebateById(currentDebateId!);
     res.json(updatedDebate);
   } catch (error) {
     console.error('Error deleting block:', error);
@@ -918,7 +918,7 @@ router.patch('/block/:id/disable', async (req, res) => {
       return res.status(404).json({ error: 'No current debate' });
     }
     
-    const debate = await supabaseService.getDebateById(currentDebateId);
+    const debate = await supabaseService.getDebateById(currentDebateId!);
     if (!debate) {
       return res.status(404).json({ error: 'No current debate' });
     }
@@ -933,7 +933,7 @@ router.patch('/block/:id/disable', async (req, res) => {
     }
 
     await disableBlockAndChildren(currentDebateId, id);
-    const updatedDebate = await supabaseService.getDebateById(currentDebateId);
+    const updatedDebate = await supabaseService.getDebateById(currentDebateId!);
     res.json(updatedDebate);
   } catch (error) {
     console.error('Error disabling block:', error);
@@ -949,7 +949,7 @@ router.patch('/block/:id/restore', async (req, res) => {
       return res.status(404).json({ error: 'No current debate' });
     }
     
-    const debate = await supabaseService.getDebateById(currentDebateId);
+    const debate = await supabaseService.getDebateById(currentDebateId!);
     if (!debate) {
       return res.status(404).json({ error: 'No current debate' });
     }
@@ -960,7 +960,7 @@ router.patch('/block/:id/restore', async (req, res) => {
     }
 
     await restoreBlockAndChildren(currentDebateId, id);
-    const updatedDebate = await supabaseService.getDebateById(currentDebateId);
+    const updatedDebate = await supabaseService.getDebateById(currentDebateId!);
     res.json(updatedDebate);
   } catch (error) {
     console.error('Error restoring block:', error);
@@ -985,7 +985,7 @@ router.put('/debate', async (req, res) => {
       const updatedDebate = await supabaseService.updateDebateResolved(currentDebateId, resolved);
       res.json(updatedDebate);
     } else {
-      const debate = await supabaseService.getDebateById(currentDebateId);
+      const debate = await supabaseService.getDebateById(currentDebateId!);
       res.json(debate);
     }
   } catch (error) {
