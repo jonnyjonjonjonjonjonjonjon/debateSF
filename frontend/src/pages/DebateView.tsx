@@ -16,7 +16,6 @@ export default function DebateView() {
     error, 
     showDebateSelection,
     selectDebate, 
-    resetDebate,
     setShowDebateSelection,
     setExpanded
   } = useDebateStore();

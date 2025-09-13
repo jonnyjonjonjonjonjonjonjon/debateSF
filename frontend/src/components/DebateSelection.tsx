@@ -1,17 +1,14 @@
 import { useEffect } from 'react';
-import { useNavigate } from 'react-router-dom';
 import { useDebateStore } from '../store/store';
 
 export function DebateSelection() {
-  const navigate = useNavigate();
   const { 
     debates, 
     loading, 
     error, 
     loadDebates, 
     selectDebate, 
-    deleteDebateById,
-    setShowDebateSelection 
+    deleteDebateById
   } = useDebateStore();
 
   useEffect(() => {
@@ -37,12 +34,6 @@ export function DebateSelection() {
   // Filter out empty debates (those with no blocks)
   const nonEmptyDebates = debates.filter(debate => debate.blocks && debate.blocks.length > 0);
 
-  const handleCreateNew = () => {
-    // Close the selection modal first
-    setShowDebateSelection(false);
-    // Use replace to ensure we get a fresh blank debate
-    navigate('/', { replace: true });
-  };
 
   if (loading) {
     return (
