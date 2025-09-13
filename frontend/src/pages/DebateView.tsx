@@ -120,7 +120,7 @@ export default function DebateView() {
               Debate Mapper 🚀
             </h1>
             <span className="text-xs md:text-sm text-white font-mono bg-green-600 px-1 md:px-2 py-1 rounded font-bold">
-              v1.13.0 - Database Persistence & AI Parsing Fixes
+              v1.14.0 - Navigation Improvements
             </span>
           </div>
           <div className="flex gap-1 md:gap-2 justify-center md:justify-end flex-wrap">
@@ -136,17 +136,19 @@ export default function DebateView() {
             >
               Select
             </button>
-            <button
-              onClick={handleNewDebate}
-              className="px-2 md:px-3 py-1 text-xs md:text-sm font-medium sharp-corners"
-              style={{
-                backgroundColor: '#EFEFEF',
-                color: '#111111',
-                border: `var(--border-width)px solid var(--border-color)`
-              }}
-            >
-              {showDebateSelection ? 'New' : 'Reset'}
-            </button>
+{!isBlankDebate && (
+              <button
+                onClick={handleNewDebate}
+                className="px-2 md:px-3 py-1 text-xs md:text-sm font-medium sharp-corners"
+                style={{
+                  backgroundColor: '#EFEFEF',
+                  color: '#111111',
+                  border: `var(--border-width)px solid var(--border-color)`
+                }}
+              >
+                New
+              </button>
+            )}
             <button
               onClick={() => navigate('/admin')}
               className="px-2 md:px-3 py-1 text-xs md:text-sm font-medium sharp-corners"
