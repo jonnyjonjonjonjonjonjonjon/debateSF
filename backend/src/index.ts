@@ -1,7 +1,7 @@
 import 'dotenv/config';
 import express from 'express';
 import cors from 'cors';
-import { debateRouter } from './routes/debate.js';
+import { debateRouter } from './routes/debate-supabase.js';
 
 const app = express();
 const PORT = process.env.PORT || 3001;
@@ -43,5 +43,5 @@ app.use((req, res) => {
 });
 
 app.listen(PORT, () => {
-  console.log(`Backend v1.12.13 running on port ${PORT}`);
+  console.log(`Backend v1.2.0 running on port ${PORT}`);
 });
