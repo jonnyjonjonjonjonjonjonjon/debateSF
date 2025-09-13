@@ -120,7 +120,7 @@ export default function DebateView() {
               Debate Mapper 🚀
             </h1>
             <span className="text-xs md:text-sm text-white font-mono bg-green-600 px-1 md:px-2 py-1 rounded font-bold">
-              v1.12.13 - Cleaned Up Navigation & Modal Controls
+              v1.13.0 - Database Persistence & AI Parsing Fixes
             </span>
           </div>
           <div className="flex gap-1 md:gap-2 justify-center md:justify-end flex-wrap">
